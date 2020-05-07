@@ -1,29 +1,30 @@
+////
+////  linked_list.hpp
+////  AstroSim
+////
+////  Created by David Freifeld on 5/2/20.
+////  Copyright © 2020 David Freifeld. All rights reserved.
+////
 //
-//  linked_list.hpp
-//  AstroSim
+//#ifndef linked_list_hpp
+//#define linked_list_hpp
 //
-//  Created by David Freifeld on 5/2/20.
-//  Copyright © 2020 David Freifeld. All rights reserved.
+//#include <stdio.h>
+//#include <iostream>
+//#include "matter.hpp"
 //
-
-#ifndef linked_list_hpp
-#define linked_list_hpp
-
-#include <stdio.h>
-#include <iostream>
-#include "matter.hpp"
-
-#endif /* linked_list_hpp */
-
-class Node
-{
-public:
-    Node * prev;
-    Node * next;
-    Matter * value;
-    Node();
-    Node(Matter valueParam, Node* prevParam, Node* nextParam);
-    Node(const Node &p2) {prev = p2.prev; next = p2.next; value = p2.value;} 
-    void addMatter(Matter matter, Node head);
-    void printList();
-};
+//#endif /* linked_list_hpp */
+//template <class Type>
+//
+//class Node
+//{
+//public:
+//    Node<Type> * prev;
+//    Node<Type> * next;
+//    Type * value;
+//    Node();
+//    Node(Type valueParam, Node<Type>* prevParam, Node<Type>* nextParam);
+//    Node(const Node<Type> &p2) {prev = p2.prev; next = p2.next; value = p2.value;}
+//    void addToLinkedList(Node<Type> list, Node<Type> addition);
+//    void listObjects();
+//};

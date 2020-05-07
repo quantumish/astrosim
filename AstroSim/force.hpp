@@ -25,6 +25,7 @@ public:
     Force(std::array<double, 2> componentsParam, Matter &targetParam, Matter &sourceParam);
     Force();
     void updateGravity();
+    void applyForce();
 };
 
 #include "matter.hpp"

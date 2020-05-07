@@ -24,7 +24,7 @@
 
 std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderWindow &window)
 {
-    double pixelLength = pow(10, 4);
+    double pixelLength = pow(10, 2);
     coordinates[0] /= pixelLength;
     coordinates[1] /= pixelLength;
     return std::array<double, 2> {coordinates[0], window.getSize().y-coordinates[1]};
@@ -45,13 +45,13 @@ int main(int, char const**)
     // run the program as long as the window is open
 
     Renderer renderer(0);
-    Matter planet1(pow(10,23), 10, {pow(10, 6), pow(10, 6)}, {0,0});
-    Node node1(planet1, NULL, NULL);
-    renderer.addMatter(node1);
-    Matter planet2(pow(10,34), 11, {1.2*pow(10, 6), pow(10, 6)}, {0,0});
-    Node node2(planet2, NULL, NULL);
-    renderer.addMatter(node2);
-    
+    Matter planet1(pow(10,1), 10, {10000, 100000}, {0,40});
+    Node<Matter> node1(planet1, NULL, NULL);
+    renderer.addMatter(&node1);
+    Matter planet2(pow(10,18), 11, {40000, 100000}, {0,0});
+    Node<Matter> node2(planet2, NULL, NULL);
+    renderer.addMatter(&node2);
+//    renderer.matter.listObjects();
     while (window.isOpen())
     {
         // check all the window's events that were triggered since the last iteration of the loop
@@ -68,14 +68,14 @@ int main(int, char const**)
 
 //         draw everything here...
 //         window.draw(...);
-
-        renderer.updateScene();
-        Node * node = &renderer.matter;
         
+//        renderer.matter.listObjects();
+        renderer.updateScene();
+        Node<Matter> * node = &renderer.matter;
         while (true)
         {
+            std::cout << "Drawing planet " << node->value->mass << std::endl;
             std::array<double, 2> fixedPosition = fixPosition(node->value->position, window);
-            std::cout << fixedPosition[0] << " " << fixedPosition[1] << std::endl;
             sf::CircleShape shape (node->value->radius);
             shape.setPosition(fixedPosition[0], fixedPosition[1]);
             window.draw(shape);
@@ -88,36 +88,7 @@ int main(int, char const**)
                 break;
             }
         }
-//        shape.setPosition(120, 1500);
         window.display();
     }
-
-
     return EXIT_SUCCESS;
 }
-
-
-//#include <SFML/Graphics.hpp>
-//
-//int main()
-//{
-//    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-//    sf::CircleShape shape(100.f);
-//    shape.setFillColor(sf::Color::Green);
-//
-//    while (window.isOpen())
-//    {
-//        sf::Event event;
-//        while (window.pollEvent(event))
-//        {
-//            if (event.type == sf::Event::Closed)
-//                window.close();
-//        }
-//
-//        window.clear();
-//        window.draw(shape);
-//        window.display();
-//    }
-//
-//    return 0;
-//}

@@ -13,7 +13,6 @@ Force::Force(std::array<double, 2> componentsParam, Matter &targetParam, Matter 
     components = componentsParam;
     target = &targetParam;
     source = &sourceParam;
-    std::cout << "MASSES RIGHT AFTER CONSTRUCTION " << target->mass << " " << source->mass << std::endl;
 }
 
 Force::Force()
@@ -25,7 +24,6 @@ Force::Force()
 
 void Force::updateGravity()
 {
-    std::cout << "MASSES AT BEGINNING OF FORCE UPDATE " << target->mass << " " << source->mass << std::endl;
     double universalGravitationalConstant = 6.7408 * pow(10, -11);
     std::array<double, 2> distanceComponents = {source->position[0]-target->position[0], source->position[1]-target->position[1]};
     double distance = sqrt(pow(distanceComponents[0],2)+pow(distanceComponents[1],2));
@@ -43,8 +41,16 @@ void Force::updateGravity()
     }
     else if (distanceComponents[0] >= 0 && distanceComponents[1] < 0)
     {
-        direction -= pi/2;
+        direction += (3*pi)/2;
     }
+    std::cout << "UPDATED GRAV FOR " << target->mass << " TO GET " << magnitude << " " << direction << " CUZ " << distanceComponents[0] << " and " << distanceComponents[1] << "\n";
     components[0] = cos(direction)*magnitude;
     components[1] = sin(direction)*magnitude;
+}
+
+void Force::applyForce()
+{
+    target->acceleration[0] += components[0]/target->mass;
+    std::cout << "APPLY " << components[0] << " / " << target->mass << " = " << target->acceleration[0] << "\n";
+    target->acceleration[1] += components[1]/target->mass;
 }

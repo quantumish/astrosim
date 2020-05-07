@@ -6,18 +6,68 @@
 //  Copyright © 2020 David Freifeld. All rights reserved.
 //
 
-#include "linked_list.hpp"
+//#include "linked_list.hpp"
+#include <stdio.h>
+#include <iostream>
 
-Node::Node()
-{
-    prev = NULL;
-    next = NULL;
-    value = NULL;
-}
+template <class Type>
 
-Node::Node(Matter valueParam, Node* prevParam, Node* nextParam)
+class Node
 {
-    value = &valueParam;
-    prev = prevParam;
-    next = nextParam;
-}
+public:
+    Node<Type> * prev;
+    Node<Type> * next;
+    Type * value;
+    
+
+    Node()
+    {
+        prev = NULL;
+        next = NULL;
+        value = NULL;
+    }
+
+    Node(Type &valueParam, Node<Type>* prevParam, Node* nextParam)
+    {
+        value = &valueParam;
+        prev = prevParam;
+        next = nextParam;
+    }
+
+    void addToLinkedList(Node * addition)
+    {
+        if (value == NULL)
+        {
+            value = addition->value;
+        }
+        else
+        {
+            if (next != NULL)
+            {
+                next->addToLinkedList(addition);
+            }
+            else
+            {
+                addition->prev = this;
+                next = addition;
+            }
+        }
+        listObjects();
+    }
+
+    void listObjects()
+    {
+        Node * current = this;
+        std::cout << " io;fzjoajks ";
+        while (true)
+        {
+            std::cout << current->value << " ";
+            if (current->next == NULL)
+            {
+                break;
+            }
+            current = current->next;
+        }
+        std::cout << "\n";
+    }
+};

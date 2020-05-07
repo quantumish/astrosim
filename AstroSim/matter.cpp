@@ -17,23 +17,21 @@ Matter::Matter(double massParam, double radiusParam, std::array<double, 2> posit
     velocity = velocityParam;
     shape.setRadius(radius);
     shape.setFillColor(sf::Color::Red);
+    netForce.target = this;
 }
 
 void Matter::updatePosition()
 {
-    netForce.components = {0,0};
-    netForce.target = this;
-    for (Force &force : forces)
-    {
-        netForce.components[0] += force.components[0];
-        netForce.components[1] += force.components[1];
-    }
+    netForce.applyForce();
     
     acceleration[0] = netForce.components[0]/mass;
     acceleration[1] = netForce.components[1]/mass;
+    
+    std::cout << acceleration[0] << " " << acceleration[1] << std::endl;
     
     velocity[0] += acceleration[0];
     velocity[1] += acceleration[1];
     position[0] += velocity[0];
     position[1] += velocity[1];
+    netForce.components = {0,0};
 }

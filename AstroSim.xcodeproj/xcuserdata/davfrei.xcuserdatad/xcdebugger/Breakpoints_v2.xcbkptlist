@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AstroSim/force.cpp"
-            timestampString = "610236635.673932"
+            timestampString = "610508449.911635"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "21"
-            endingLineNumber = "21"
+            startingLineNumber = "20"
+            endingLineNumber = "20"
             landmarkName = "Force::Force()"
             landmarkType = "7">
             <Locations>
@@ -58,23 +58,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AstroSim/force.cpp"
-            timestampString = "610236635.674015"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "29"
-            endingLineNumber = "29"
-            landmarkName = "Force::updateGravity()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AstroSim/force.cpp"
-            timestampString = "610236635.6740789"
+            timestampString = "610508449.912189"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "14"
@@ -89,62 +73,14 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "AstroSim/renderer.hpp"
-            timestampString = "610239887.195168"
+            filePath = "AstroSim/force.cpp"
+            timestampString = "610508449.912534"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "33"
-            endingLineNumber = "33"
-            landmarkName = "class Renderer"
-            landmarkType = "3">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AstroSim/renderer.cpp"
-            timestampString = "610239887.195235"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
-            landmarkName = "Renderer::listObjects()"
+            startingLineNumber = "28"
+            endingLineNumber = "28"
+            landmarkName = "Force::updateGravity()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Renderer::listObjects()"
-                  moduleName = "AstroSim"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/renderer.cpp"
-                  timestampString = "610230480.0185061"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "19"
-                  endingLineNumber = "19"
-                  offsetFromSymbolStart = "11">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "Renderer::addMatter(Matter)"
-                  moduleName = "AstroSim"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/renderer.cpp"
-                  timestampString = "610230480.020673"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "19"
-                  endingLineNumber = "19"
-                  offsetFromSymbolStart = "631">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -154,43 +90,74 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AstroSim/renderer.cpp"
-            timestampString = "610239887.1953"
+            timestampString = "610508449.912879"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "21"
             endingLineNumber = "21"
-            landmarkName = "Renderer::listObjects()"
+            landmarkName = "Renderer::addMatter(Node&lt;Matter&gt; * node)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AstroSim/linked_list.cpp"
+            timestampString = "610508449.913012"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "addToLinkedList(Node * addition)"
             landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "Renderer::listObjects()"
+                  symbolName = "Renderer::addMatter(Node&lt;Matter&gt;)"
                   moduleName = "AstroSim"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/renderer.cpp"
-                  timestampString = "610230480.027058"
+                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/linked_list.cpp"
+                  timestampString = "610249798.593006"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "21"
-                  endingLineNumber = "21"
-                  offsetFromSymbolStart = "30">
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "80">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "Renderer::addMatter(Matter)"
+                  symbolName = "Renderer::addMatter(Node&lt;Matter&gt;)"
                   moduleName = "AstroSim"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/renderer.cpp"
-                  timestampString = "610230480.029223"
+                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/linked_list.cpp"
+                  timestampString = "610249798.597047"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "21"
-                  endingLineNumber = "21"
-                  offsetFromSymbolStart = "647">
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "212">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Renderer::addMatter(Node&lt;Matter&gt;)"
+                  moduleName = "AstroSim"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/linked_list.cpp"
+                  timestampString = "610249798.599659"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "285">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -201,13 +168,61 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "AstroSim/renderer.cpp"
-            timestampString = "610239887.195358"
+            filePath = "AstroSim/main.cpp"
+            timestampString = "610508449.913154"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "38"
-            endingLineNumber = "38"
-            landmarkName = "Renderer::addMatter(Node node)"
+            startingLineNumber = "51"
+            endingLineNumber = "51"
+            landmarkName = "main(int, char const**)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AstroSim/renderer.cpp"
+            timestampString = "610508449.913295"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "Renderer::addMatter(Node&lt;Matter&gt; * node)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AstroSim/main.cpp"
+            timestampString = "610508449.913445"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
+            landmarkName = "main(int, char const**)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AstroSim/renderer.cpp"
+            timestampString = "610508449.9135571"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
+            landmarkName = "Renderer::addMatter(Node&lt;Matter&gt; * node)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -218,12 +233,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AstroSim/renderer.cpp"
-            timestampString = "610239887.195413"
+            timestampString = "610508449.913674"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "33"
-            endingLineNumber = "33"
-            landmarkName = "Renderer::addMatter(Node node)"
+            startingLineNumber = "24"
+            endingLineNumber = "24"
+            landmarkName = "Renderer::addMatter(Node&lt;Matter&gt; * node)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -234,13 +249,76 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "AstroSim/renderer.cpp"
-            timestampString = "610239887.195465"
+            timestampString = "610508449.913772"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "34"
-            endingLineNumber = "34"
-            landmarkName = "Renderer::addMatter(Node node)"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "Renderer::updateScene()"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AstroSim/linked_list.cpp"
+            timestampString = "610508449.91387"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
+            landmarkName = "addToLinkedList(Node * addition)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Renderer::addMatter(Node&lt;Matter&gt;)"
+                  moduleName = "AstroSim"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/linked_list.cpp"
+                  timestampString = "610494469.6659369"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "63">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Renderer::addMatter(Node&lt;Matter&gt;)"
+                  moduleName = "AstroSim"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/linked_list.cpp"
+                  timestampString = "610494469.667991"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "266">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Renderer::addMatter(Node&lt;Matter&gt;)"
+                  moduleName = "AstroSim"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/davfrei/AstroSim/AstroSim/linked_list.cpp"
+                  timestampString = "610494469.670102"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "41"
+                  endingLineNumber = "41"
+                  offsetFromSymbolStart = "455">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
