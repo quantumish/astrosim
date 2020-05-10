@@ -29,19 +29,45 @@ void Force::updateGravity()
     double distance = sqrt(pow(distanceComponents[0],2)+pow(distanceComponents[1],2));
     double magnitude = (source->mass * target->mass * universalGravitationalConstant)/pow(distance,2);
     std::cout << "( " << source->mass << " * " << target->mass << " * " << universalGravitationalConstant << " ) / " << pow(distance,2) << " = " << magnitude << std::endl;
-    double direction = atan(abs(distanceComponents[1]) / abs(distanceComponents[0]));
     double pi = 3.14159265359;
-    if (distanceComponents[0] < 0 && distanceComponents[1] < 0)
+    double direction;
+    if (distanceComponents[0] == 0)
     {
-        direction += pi;
+        if (distanceComponents[1] > 0)
+        {
+            direction = pi/2;
+        }
+        else
+        {
+            direction = (3*pi)/2;
+        }
     }
-    else if (distanceComponents[0] < 0 && distanceComponents[1] >= 0)
+    else if (distanceComponents[1] == 0)
     {
-        direction += pi/2;
+        if (distanceComponents[0] > 0)
+        {
+            direction = 0;
+        }
+        else
+        {
+            direction = pi;
+        }
     }
-    else if (distanceComponents[0] >= 0 && distanceComponents[1] < 0)
+    else
     {
-        direction += (3*pi)/2;
+        direction = atan(abs(distanceComponents[1]) / abs(distanceComponents[0]));
+        if (distanceComponents[0] < 0 && distanceComponents[1] < 0)
+        {
+            direction += pi;
+        }
+        else if (distanceComponents[0] < 0 && distanceComponents[1] > 0)
+        {
+            direction += pi/2;
+        }
+        else if (distanceComponents[0] > 0 && distanceComponents[1] < 0)
+        {
+            direction -= pi/2;
+        }
     }
     std::cout << "UPDATED GRAV FOR " << target->mass << " TO GET " << magnitude << " " << direction << " CUZ " << distanceComponents[0] << " and " << distanceComponents[1] << "\n";
     components[0] = cos(direction)*magnitude;
