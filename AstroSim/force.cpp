@@ -31,45 +31,7 @@ void Force::updateGravity()
     std::cout << "( " << source->mass << " * " << target->mass << " * " << universalGravitationalConstant << " ) / " << pow(distance,2) << " = " << magnitude << std::endl;
     double pi = 3.14159265359;
     double direction;
-    if (distanceComponents[0] == 0)
-    {
-        if (distanceComponents[1] > 0)
-        {
-            direction = pi/2;
-        }
-        else
-        {
-            direction = (3*pi)/2;
-        }
-    }
-    else if (distanceComponents[1] == 0)
-    {
-        if (distanceComponents[0] > 0)
-        {
-            direction = 0;
-        }
-        else
-        {
-            direction = pi;
-        }
-    }
-    else
-    {
-        direction = atan(abs(distanceComponents[1]) / abs(distanceComponents[0]));
-        if (distanceComponents[0] < 0 && distanceComponents[1] < 0)
-        {
-            direction += pi;
-        }
-        else if (distanceComponents[0] < 0 && distanceComponents[1] > 0)
-        {
-            direction += pi/2;
-        }
-        else if (distanceComponents[0] > 0 && distanceComponents[1] < 0)
-        {
-            direction -= pi/2;
-        }
-    }
-    std::cout << "UPDATED GRAV FOR " << target->mass << " TO GET " << magnitude << " " << direction << " CUZ " << distanceComponents[0] << " and " << distanceComponents[1] << "\n";
+    direction = atan2(distanceComponents[1], distanceComponents[0]);
     components[0] = cos(direction)*magnitude;
     components[1] = sin(direction)*magnitude;
 }

@@ -45,12 +45,13 @@ int main(int, char const**)
     // run the program as long as the window is open
 
     Renderer renderer(0);
-    Matter planet1(pow(10,1), 10, {10000, 100000}, {0,5});
+    Matter planet1(pow(10,1), 10, {30000, 110000}, {0,50});
     Node<Matter> node1(planet1, NULL, NULL);
     renderer.addMatter(&node1);
     Matter planet2(pow(10,18), 11, {40000, 100000}, {0,0});
     Node<Matter> node2(planet2, NULL, NULL);
     renderer.addMatter(&node2);
+
 //    renderer.matter.listObjects();
     while (window.isOpen())
     {

@@ -1,0 +1,62 @@
+#+TITLE: AstroSim
+
+* About
+AstroSim is a fledgling astronomical simulation program written in C++.
+* Roadmap
+** DONE Basic Backend [5/5]
+- [X] 1d motion, SFML setup
+- [X] 2d motion, polar coordinates
+- [X] Forces, gravity
+- [X] Renderer class that manages scene
+- [X] Bugfix: Inconsistent Forces
+  - [X] Complete code rewrite
+  - [X] Switch to linked lists
+  - [X] Bugfix: Fix gravity
+** TODO Orbital Estimation [0/3]
+- [ ] SFML Ellipses
+- [ ] 2-body estimation
+  - [ ] Research Kepler's Laws and orbital approximation
+  - [ ] Implement approximation techniques
+- [ ] N-body approximations
+  - [ ] Perturbation Theory
+** TODO Star Modelling [0/4]
+- [ ] Solar Mass Stars
+  - [ ] Main Sequence
+  - [ ] Post-Main Sequence
+  - [ ] Asymptotic Red Giant Branch
+  - [ ] Star Death
+- [ ] Graphics
+- [ ] Larger Stars
+  - [ ] Adjustments to Solar Mass sequence
+  - [ ] Neutron Stars
+  - [ ] Black Holes
+- [ ] Smaller Stars
+  - [ ] Adjustments to Solar Mass sequence
+** TODO Collisions [0/4]
+- [ ] Basic "absorption" collision
+- [ ] Fragmentation of planets
+  - [ ] Research physics
+  - [ ] Implement said physics
+- [ ] Dynamic collisions (star-planet different from planet-planet)
+- [ ] Improve fragmentation to include dust
+** TODO Planets [0/3]
+- [ ] Plan out planets more
+- [ ] Material
+- [ ] Atmospheres
+** TODO Dust and Formation [0/4]
+- [ ] Add Dust class
+  - [ ] Devise method of efficiently simulating large numbers of particles
+  - [ ] Implement algorithm
+- [ ] Graphics
+- [ ] Nebulae
+  - [ ] Stellar nebulae
+  - [ ] Planetary nebulae
+- [ ] Integrate into models, replacement
+** TODO Efficiency [0/4]
+- [ ] High-Level Optimizations
+  - [ ] Switch to vectors
+  - [ ] Improve time complexity of algorithms
+- [ ] Branch Prediction Improvements
+- [ ] Cache Optimization
+- [ ] Multithreading
+** TODO Relativity [/]

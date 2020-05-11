@@ -1,0 +1,26 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /Users/davfrei/AstroSim/README.org
+
+
+* TODO Star Modelling [0/4]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2020-05-10 Sun 17:39
+  :ARCHIVE_FILE: ~/AstroSim/README.org
+  :ARCHIVE_OLPATH: Roadmap
+  :ARCHIVE_CATEGORY: README
+  :ARCHIVE_TODO: TODO
+  :END:
+- [ ] Solar Mass Stars
+  - [ ] Main Sequence
+  - [ ] Post-Main Sequence
+  - [ ] Asymptotic Red Giant Branch
+  - [ ] Star Death
+- [ ] Improved graphics
+- [ ] Larger Stars
+  - [ ] Adjustments to Solar Mass sequence
+  - [ ] Neutron Stars
+  - [ ] Black Holes
+- [ ] Smaller Stars
+  - [ ] Adjustments to Solar Mass sequence
