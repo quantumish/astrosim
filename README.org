@@ -52,6 +52,11 @@ AstroSim is a fledgling astronomical simulation program written in C++.
   - [ ] Stellar nebulae
   - [ ] Planetary nebulae
 - [ ] Integrate into models, replacement
+** TODO Graphics [0/4]
+- [ ] Look into alternative graphics libraries
+- [ ] 3d motion
+- [ ] 3d approximation in 2d
+- [ ] Actual 3d graphics
 ** TODO Efficiency [0/4]
 - [ ] High-Level Optimizations
   - [ ] Switch to vectors
