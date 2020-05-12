@@ -13,12 +13,21 @@ AstroSim is a fledgling astronomical simulation program written in C++.
   - [X] Switch to linked lists
   - [X] Bugfix: Fix gravity
 ** TODO Orbital Estimation [0/3]
-- [ ] SFML Ellipses
-- [ ] 2-body estimation
-  - [ ] Research Kepler's Laws and orbital approximation
+*Potential roadblock, math is quite challenging.*
+- [-] 2-body estimation
+  - [X] Research Kepler's Laws and orbital approximation
+  - [ ] Understand Kepler Problem
+  - [ ] Add orbital elements
   - [ ] Implement approximation techniques
+- [ ] SFML Ellipses
 - [ ] N-body approximations
   - [ ] Perturbation Theory
+** TODO Usability Improvements [0/2]
+- [ ] Renderer manages more things
+- [ ] GUI
+  - [ ] Addition/removal of planets from gui
+  - [ ] Can be operated without touching code
+- [ ] Easier interface/modification outside of GUI.
 ** TODO Star Modelling [0/4]
 - [ ] Solar Mass Stars
   - [ ] Main Sequence
@@ -32,7 +41,8 @@ AstroSim is a fledgling astronomical simulation program written in C++.
   - [ ] Black Holes
 - [ ] Smaller Stars
   - [ ] Adjustments to Solar Mass sequence
-** TODO Collisions [0/4]
+** TODO Collisions [0/5]
+- [ ] Improved forces
 - [ ] Basic "absorption" collision
 - [ ] Fragmentation of planets
   - [ ] Research physics
@@ -64,4 +74,5 @@ AstroSim is a fledgling astronomical simulation program written in C++.
 - [ ] Branch Prediction Improvements
 - [ ] Cache Optimization
 - [ ] Multithreading
+** TODO Documentation [/]
 ** TODO Relativity [/]
