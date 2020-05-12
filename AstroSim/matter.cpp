@@ -20,6 +20,16 @@ Matter::Matter(double massParam, double radiusParam, std::array<double, 2> posit
     netForce.target = this;
 }
 
+Matter::Matter()
+{
+    mass = 10;
+    radius = 1;
+    position = {0,0};
+    velocity = {0,0};
+    shape.setRadius(radius);
+    netForce.target = this;
+}
+
 void Matter::updatePosition()
 {
     netForce.applyForce();

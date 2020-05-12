@@ -16,6 +16,12 @@
 #include <SFML/Graphics.hpp>
 #include "force.hpp"
 
+struct Trajectory {
+    double semiMajorAxis;
+    double semiMinorAxis;
+    float r;
+    float rPrime;
+};
 
 class Matter
 {
@@ -27,11 +33,14 @@ public:
     std::array<double, 2> acceleration;
     std::vector<Force> forces;
     Force netForce{};
+    Trajectory orbit;
     
     sf::CircleShape shape;
     
     Matter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
     void updatePosition();
+    Matter();
 };
+
 
 #endif /* matter_hpp */
