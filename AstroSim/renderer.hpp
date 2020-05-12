@@ -15,6 +15,7 @@
 #include <cmath>
 #include <typeinfo>
 #include <iostream>
+#include <valarray>
 
 #include "matter.hpp"
 #include "force.hpp"
@@ -30,6 +31,7 @@ public:
     
     Renderer(int speedParam);
     void addMatter(Node<Matter> * node);
+    void findTrajectory(Node<Matter> matter);
     void checkCollisions();
     void updateScene();
 };
