@@ -14,13 +14,16 @@
 #include <vector>
 #include <cmath>
 #include <SFML/Graphics.hpp>
+//#include <Eigen/Dense>
 #include "force.hpp"
 
 struct Trajectory {
-    double semiMajorAxis;
-    double semiMinorAxis;
-    float r;
-    float rPrime;
+    double A;
+    double B;
+    double C;
+    double D;
+    double E;
+    double F;
 };
 
 class Matter
