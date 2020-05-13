@@ -41,6 +41,18 @@ void Renderer::addMatter(double massParam, double radiusParam, std::array<double
     }
 }
 
+void Renderer::removeMatter(int index)
+{
+    for (int i = 0; i < forces.size(); i++)
+    {
+        if (forces[i].target == &matter[index])
+        {
+            forces.erase(forces.begin() + i);
+        }
+    }
+    matter.erase(matter.begin()+index);
+}
+
 void Renderer::findTrajectory(Matter matter)
 {
     if (matter.history.size() >= 5)
@@ -69,7 +81,29 @@ void Renderer::traceObjects()
     for (int i = 0; i<matter.size(); i++)
     {
         std::array<unsigned int,2> loc = fixPosition(matter[i].position);
-        canvas.setPixel(loc[0], loc[1], sf::Color(255,255,255,100));
+        if (loc[0] < window->getSize().x && loc[1] < window->getSize().y)
+        {
+            canvas.setPixel(loc[0], loc[1], sf::Color(255,255,255,100));
+        }
+    }
+}
+
+void Renderer::checkCollisions()
+{
+    for (int i = 0; i<matter.size(); i++)
+    {
+        for (int j = 0; j<matter.size(); j++)
+        {
+            if (&matter[j] == &matter[i])
+            {
+                continue;
+            }
+            double distSquared = pow(((matter[i].position[0] + matter[i].radius) - (matter[j].position[0] + matter[j].radius)),2) + pow(((matter[i].position[1] + matter[i].radius) - (matter[j].position[1] + matter[j].radius)),2);
+            if (distSquared < pow(matter[i].radius+matter[j].radius,4))
+            {
+                removeMatter(i);
+            }
+        }
     }
 }
 
@@ -108,9 +142,11 @@ void Renderer::drawScene()
     }
 }
 
+
 void Renderer::nextFrame()
 {
     updateScene();
+    checkCollisions();
     traceObjects();
     drawScene();
 }

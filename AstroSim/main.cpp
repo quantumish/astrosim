@@ -36,7 +36,7 @@ int main(int, char const**)
 
     sf::RenderWindow * windowPointer = &window;
     Renderer renderer(0, windowPointer, pow(10, 2));
-    renderer.addMatter(pow(10,1), 3, {30000, 110000}, {0,50});
+    renderer.addMatter(pow(10,1), 3, {30000, 110000}, {0,0});
     renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
     int frames = 0;
     while (window.isOpen())
