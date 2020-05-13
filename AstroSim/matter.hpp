@@ -14,7 +14,7 @@
 #include <vector>
 #include <cmath>
 #include <SFML/Graphics.hpp>
-//#include <Eigen/Dense>
+#include <Eigen/Dense>
 #include "force.hpp"
 
 struct Trajectory {
@@ -36,6 +36,7 @@ public:
     std::array<double, 2> acceleration;
     std::vector<Force> forces;
     Force netForce{};
+    std::vector<std::array<double, 2>> history;
     Trajectory orbit;
     
     sf::CircleShape shape;

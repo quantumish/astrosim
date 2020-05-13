@@ -13,6 +13,13 @@ Renderer::Renderer(int speedParam)
     speed=speedParam;
 }
 
+std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderWindow &window)
+{
+    double pixelLength = pow(10, 2);
+    coordinates[0] /= pixelLength;
+    coordinates[1] /= pixelLength;
+    return std::array<double, 2> {coordinates[0], window.getSize().y-coordinates[1]};
+}
 
 void Renderer::addMatter(Node<Matter> * node)
 {
@@ -50,8 +57,49 @@ void Renderer::addMatter(Node<Matter> * node)
 
 void Renderer::findTrajectory(Matter matter)
 {
-    
-};
+    if (matter.history.size() >= 5)
+    {
+        Eigen::MatrixXd points(6,6);
+        Eigen::MatrixXd answers(6,1);
+        for (int i = 0; i < 6; i++)
+        {
+            std::array<double,2> pos = matter.history[i];
+            points.row(i) << pow(pos[0],2), pos[0]*pos[1], pow(pos[1],2), pos[0], pos[1], 1;
+            answers.row(i) << pos[1];
+        }
+        std::cout << "COEFFICIENTS\n";
+        std::cout << points << "\n";
+        std::cout << "ANSWERS\n";
+        std::cout << answers << "\n";
+        Eigen::MatrixXd unknowns (6,1);
+        unknowns = points.inverse() * answers;
+        std::cout << "UNKNOWNS\n";
+        std::cout << unknowns << "\n";
+    }
+}
+
+void Renderer::traceObjects(sf::RenderWindow window)
+{
+//    sf::Vector2u size = {window.getSize().x, window.getSize().y};
+//    sf::Image canvas;
+//    canvas.create(size.x, size.y, sf::Color(0, 0, 0));
+    Node<Matter> * node = &matter;
+    while (true)
+    {
+        int x = round(node->value->position[0])/pixelLength;
+        int y = round(node->value->position[1])/pixelLength;
+        std::cout << x << " " << y << "\n";
+        canvas.setPixel(x, y, sf::Color(255, 255, 255));
+        if (node->next != NULL)
+        {
+            node = node->next;
+        }
+        else
+        {
+            break;
+        }
+    }
+}
 
 void Renderer::updateScene()
 {
@@ -89,4 +137,5 @@ void Renderer::updateScene()
         }
         object = object->next;
     }
+//    findTrajectory(*matter.value);
 }

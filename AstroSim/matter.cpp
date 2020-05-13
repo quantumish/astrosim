@@ -37,7 +37,7 @@ void Matter::updatePosition()
     acceleration[0] = netForce.components[0]/mass;
     acceleration[1] = netForce.components[1]/mass;
     
-    std::cout << acceleration[0] << " " << acceleration[1] << std::endl;
+//    std::cout << acceleration[0] << " " << acceleration[1] << std::endl;
     
     velocity[0] += acceleration[0];
     velocity[1] += acceleration[1];

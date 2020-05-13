@@ -28,7 +28,7 @@ std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderW
     coordinates[1] /= pixelLength;
     return std::array<double, 2> {coordinates[0], window.getSize().y-coordinates[1]};
 }
-
+int frames = 0;
 int main(int, char const**)
 {
     // Create the main window
@@ -53,7 +53,7 @@ int main(int, char const**)
     // Matter planet3(pow(10,1), 5, {50000, 100000}, {0,-30});
     // Node<Matter> node3(planet3, NULL, NULL);
     // renderer.addMatter(&node3);
-     while (window.isOpen())
+    while (window.isOpen())
     {
         // check all the window's events that were triggered since the last iteration of the loop
         sf::Event event;
@@ -70,53 +70,59 @@ int main(int, char const**)
 //         draw everything here...
 //         window.draw(...);
         
-//        renderer.matter.listObjects();
+//        sf::Texture bg;
+//        bg.loadFromImage(canvas);
+//        sf::Sprite backgroundSprite;
+//        backgroundSprite.setTexture(bg, true);
+//
         renderer.updateScene();
-        Node<Matter> * node = &renderer.matter;
-        sf::Vector2u size = {200, 200};
-        sf::Image graph;
-        graph.create(size.x, size.y, sf::Color(0, 0, 0));
+        renderer.traceObjects(window, pow(10,2));
+        
         // y = 2x
-        for (int x = 0; x < size.x; x++)
+//        for (int x = 0; x < size.x; x++)
+//        {
+////            std::cout << x << "\n";
+//            int A = -0.5, B = 1.4, C = -1.3, D = 690, E = -0.3, F = 0;
+//            int y1 = -(sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
+//            int y2 = (sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
+//            int y3;
+//            if ((B*x+E) != 0)
+//            {
+//                y3 = -(x*(A*x+D)+F)/(B*x+E);
+//            }
+//            else
+//            {
+//                y3 = 20;
+//            }
+//            if (y1 < size.y)
+//            {
+//                graph.setPixel(x, y1, sf::Color(255, 255, 255));
+//            }
+//            if (y2 < size.y)
+//            {
+//                graph.setPixel(x, y2, sf::Color(255, 255, 255));
+//            }
+//            if (y3 < size.y)
+//            {
+//                graph.setPixel(x, y3, sf::Color(255, 255, 255));
+//            }
+//        }
+//        sf::Texture texture;
+//        texture.loadFromImage(graph);
+//        sf::Sprite sprite;
+//        sprite.setTexture(texture, true);
+        if (frames % 700 == 0)
         {
-            std::cout << x << "\n";
-            int A = -0.5, B = 1.4, C = -1.3, D = 690, E = -0.3, F = 0;
-            int y1 = -(sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
-            int y2 = (sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
-            int y3;
-            if ((B*x+E) != 0)
-            {
-                y3 = -(x*(A*x+D)+F)/(B*x+E);
-            }
-            else
-            {
-                y3 = 20;
-            }
-            if (y1 < size.y)
-            {
-                graph.setPixel(x, y1, sf::Color(255, 255, 255));
-            }
-            if (y2 < size.y)
-            {
-                graph.setPixel(x, y2, sf::Color(255, 255, 255));
-            }
-            if (y3 < size.y)
-            {
-                graph.setPixel(x, y3, sf::Color(255, 255, 255));
-            }
+            planet1.history.push_back(planet1.position);
         }
-        sf::Texture texture;
-        texture.loadFromImage(graph);
-        sf::Sprite sprite;
-        sprite.setTexture(texture, true);
+        Node<Matter> * node = &renderer.matter;
+        window.draw(backgroundSprite);
         while (true)
         {
-            std::cout << "Drawing planet " << node->value->mass << std::endl;
             std::array<double, 2> fixedPosition = fixPosition(node->value->position, window);
             sf::CircleShape shape (node->value->radius);
             shape.setPosition(fixedPosition[0], fixedPosition[1]);
             window.draw(shape);
-            window.draw(sprite);
             if (node->next != NULL)
             {
                 node = node->next;
@@ -127,6 +133,7 @@ int main(int, char const**)
             }
         }
         window.display();
+        frames++;
     }
     return EXIT_SUCCESS;
 }

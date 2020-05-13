@@ -16,6 +16,8 @@
 #include <typeinfo>
 #include <iostream>
 #include <valarray>
+#include <Eigen/Dense>
+#include <SFML/Graphics.hpp>
 
 #include "matter.hpp"
 #include "force.hpp"
@@ -26,12 +28,15 @@ class Renderer
 {
 public:
     int speed;
+    
     Node<Matter> matter{};
     Node<Force> forces{};
     
     Renderer(int speedParam);
+    std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderWindow &window);
     void addMatter(Node<Matter> * node);
     void findTrajectory(Matter matter);
+    void traceObjects(sf::RenderWindow window);
     void checkCollisions();
     void updateScene();
 };
