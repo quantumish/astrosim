@@ -28,7 +28,6 @@ std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderW
     coordinates[1] /= pixelLength;
     return std::array<double, 2> {coordinates[0], window.getSize().y-coordinates[1]};
 }
-int frames = 0;
 int main(int, char const**)
 {
     // Create the main window
@@ -44,15 +43,9 @@ int main(int, char const**)
     // run the program as long as the window is open
 
     Renderer renderer(0);
-    Matter planet1(pow(10,1), 3, {30000, 110000}, {0,50});
-    Node<Matter> node1(planet1, NULL, NULL);
-    renderer.addMatter(&node1);
-    Matter planet2(pow(10,18), 11, {40000, 100000}, {0,0});
-    Node<Matter> node2(planet2, NULL, NULL);
-    renderer.addMatter(&node2);
-    // Matter planet3(pow(10,1), 5, {50000, 100000}, {0,-30});
-    // Node<Matter> node3(planet3, NULL, NULL);
-    // renderer.addMatter(&node3);
+    renderer.addMatter(pow(10,1), 3, {30000, 110000}, {0,50});
+    renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
+    int frames = 0;
     while (window.isOpen())
     {
         // check all the window's events that were triggered since the last iteration of the loop
@@ -76,61 +69,53 @@ int main(int, char const**)
 //        backgroundSprite.setTexture(bg, true);
 //
         renderer.updateScene();
-        renderer.traceObjects(window, pow(10,2));
+        //        renderer.traceObjects(window);
         
         // y = 2x
-//        for (int x = 0; x < size.x; x++)
-//        {
-////            std::cout << x << "\n";
-//            int A = -0.5, B = 1.4, C = -1.3, D = 690, E = -0.3, F = 0;
-//            int y1 = -(sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
-//            int y2 = (sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
-//            int y3;
-//            if ((B*x+E) != 0)
-//            {
-//                y3 = -(x*(A*x+D)+F)/(B*x+E);
-//            }
-//            else
-//            {
-//                y3 = 20;
-//            }
-//            if (y1 < size.y)
-//            {
-//                graph.setPixel(x, y1, sf::Color(255, 255, 255));
-//            }
-//            if (y2 < size.y)
-//            {
-//                graph.setPixel(x, y2, sf::Color(255, 255, 255));
-//            }
-//            if (y3 < size.y)
-//            {
-//                graph.setPixel(x, y3, sf::Color(255, 255, 255));
-//            }
-//        }
-//        sf::Texture texture;
-//        texture.loadFromImage(graph);
-//        sf::Sprite sprite;
-//        sprite.setTexture(texture, true);
-        if (frames % 700 == 0)
+        //        for (int x = 0; x < size.x; x++)
+        //        {
+        ////            std::cout << x << "n";
+        //            int A = -0.5, B = 1.4, C = -1.3, D = 690, E = -0.3, F = 0;
+        //            int y1 = -(sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
+        //            int y2 = (sqrt(pow((B*x+E),2)-4*C*(x*(A*x+D)+F))+ B*x + E)/(2*C);
+        //            int y3;
+        //            if ((B*x+E) != 0)
+        //            {
+        //                y3 = -(x*(A*x+D)+F)/(B*x+E);
+        //            }
+        //            else
+        //            {
+        //                y3 = 20;
+        //            }
+        //            if (y1 < size.y)
+        //            {
+        //                graph.setPixel(x, y1, sf::Color(255, 255, 255));
+        //            }
+        //            if (y2 < size.y)
+        //            {
+        //                graph.setPixel(x, y2, sf::Color(255, 255, 255));
+        //            }
+        //            if (y3 < size.y)
+        //            {
+        //                graph.setPixel(x, y3, sf::Color(255, 255, 255));
+        //            }
+        //        }
+        //        sf::Texture texture;
+        //        texture.loadFromImage(graph);
+        //        sf::Sprite sprite;
+        //        sprite.setTexture(texture, true);
+        //        if (frames % 700 == 0)
+        //        {
+        //            planet1.history.push_back(planet1.position);
+        //        }
+        //        Node<Matter> * node = &renderer.matter;
+        //        window.draw(backgroundSprite);
+        for (Matter object : renderer.matter)
         {
-            planet1.history.push_back(planet1.position);
-        }
-        Node<Matter> * node = &renderer.matter;
-        window.draw(backgroundSprite);
-        while (true)
-        {
-            std::array<double, 2> fixedPosition = fixPosition(node->value->position, window);
-            sf::CircleShape shape (node->value->radius);
+            std::array<double, 2> fixedPosition = fixPosition(object.position, window);
+            sf::CircleShape shape (object.radius);
             shape.setPosition(fixedPosition[0], fixedPosition[1]);
             window.draw(shape);
-            if (node->next != NULL)
-            {
-                node = node->next;
-            }
-            else
-            {
-                break;
-            }
         }
         window.display();
         frames++;

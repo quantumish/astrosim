@@ -16,10 +16,10 @@
 #include "ResourcePath.hpp"
 #include "renderer.hpp"
 
-#include <iostream>
+//#include <iostream>
 #include <thread>
 #include <chrono>
-#include <cmath>
+//#include <cmath>
 
 
 #endif /* main_h */

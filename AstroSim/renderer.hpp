@@ -10,33 +10,29 @@
 #define renderer_hpp
 
 #include <stdio.h>
-#include <vector>
 #include <array>
 #include <cmath>
-#include <typeinfo>
+#include <vector>
 #include <iostream>
-#include <valarray>
 #include <Eigen/Dense>
 #include <SFML/Graphics.hpp>
 
 #include "matter.hpp"
 #include "force.hpp"
-#include "linked_list.cpp"
-
 
 class Renderer
 {
 public:
     int speed;
     
-    Node<Matter> matter{};
-    Node<Force> forces{};
+    std::vector<Matter> matter;
+    std::vector<Force> forces;
     
     Renderer(int speedParam);
     std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderWindow &window);
-    void addMatter(Node<Matter> * node);
+    void addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
     void findTrajectory(Matter matter);
-    void traceObjects(sf::RenderWindow window);
+//    void traceObjects(sf::RenderWindow window);
     void checkCollisions();
     void updateScene();
 };
