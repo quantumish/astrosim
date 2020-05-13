@@ -24,6 +24,8 @@ class Renderer
 {
 public:
     sf::RenderWindow * window;
+
+    sf::Image canvas;
     
     int speed;
     int pixelLength;
@@ -32,7 +34,7 @@ public:
     std::vector<Force> forces;
     
     Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam);
-    std::array<double, 2> fixPosition(std::array<double, 2> coordinates);
+    std::array<unsigned int, 2> fixPosition(std::array<double, 2> coordinates);
     void addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
     
     void findTrajectory(Matter matter);

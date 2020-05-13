@@ -13,14 +13,19 @@ Renderer::Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelPara
     speed=speedParam;
     window=windowParam;
     pixelLength=pixelParam;
+    sf::Vector2u size = {window->getSize().x, window->getSize().y};
+    canvas.create(size.x, size.y, sf::Color(0, 0, 0));
 }
 
-std::array<double, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
+std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
 {
+    std::array<unsigned int, 2> fixed_coords;
+    fixed_coords[0] = round(coordinates[0]);
+    fixed_coords[1] = round(coordinates[1]);
     double pixelLength = pow(10, 2);
-    coordinates[0] /= pixelLength;
-    coordinates[1] /= pixelLength;
-    return std::array<double, 2> {coordinates[0], window->getSize().y-coordinates[1]};
+    fixed_coords[0] /= pixelLength;
+    fixed_coords[1] /= pixelLength;
+    return std::array<unsigned int, 2> {fixed_coords[0], window->getSize().y-fixed_coords[1]};
 }
 
 void Renderer::addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam)
@@ -61,15 +66,10 @@ void Renderer::findTrajectory(Matter matter)
 
 void Renderer::traceObjects()
 {
-    sf::Vector2u size = {window->getSize().x, window->getSize().y};
-    sf::Image canvas;
-    canvas.create(size.x, size.y, sf::Color(0, 0, 0));
     for (int i = 0; i<matter.size(); i++)
     {
-        int x = round(matter[i].position[0])/pixelLength;
-        int y = round(matter[i].position[1])/pixelLength;
-        std::cout << x << " " << y << "\n";
-        canvas.setPixel(x, y, sf::Color(255, 255, 255));
+        std::array<unsigned int,2> loc = fixPosition(matter[i].position);
+        canvas.setPixel(loc[0], loc[1], sf::Color(255,255,255,100));
     }
 }
 
@@ -94,12 +94,16 @@ void Renderer::updateScene()
 
 void Renderer::drawScene()
 {
+    sf::Texture backgroundTexture;
+    backgroundTexture.loadFromImage(canvas);
+    sf::Sprite backgroundSprite;
+    backgroundSprite.setTexture(backgroundTexture);
+    window->draw(backgroundSprite);
     for (Matter object : matter)
     {
-        std::cout << object.position[0] << std::endl;
-        std::array<double, 2> fixedPosition = fixPosition(object.position);
+        std::array<unsigned int, 2> fixedPosition = fixPosition(object.position);
         sf::CircleShape shape (object.radius);
-        shape.setPosition(fixedPosition[0], fixedPosition[1]);
+        shape.setPosition(fixedPosition[0]-object.radius, fixedPosition[1]-object.radius);
         window->draw(shape);
     }
 }
@@ -107,5 +111,6 @@ void Renderer::drawScene()
 void Renderer::nextFrame()
 {
     updateScene();
+    traceObjects();
     drawScene();
 }
