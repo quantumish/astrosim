@@ -23,18 +23,25 @@
 class Renderer
 {
 public:
+    sf::RenderWindow * window;
+    
     int speed;
+    int pixelLength;
     
     std::vector<Matter> matter;
     std::vector<Force> forces;
     
-    Renderer(int speedParam);
-    std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderWindow &window);
+    Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam);
+    std::array<double, 2> fixPosition(std::array<double, 2> coordinates);
     void addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
+    
     void findTrajectory(Matter matter);
-//    void traceObjects(sf::RenderWindow window);
     void checkCollisions();
+    void traceObjects();
     void updateScene();
+    void drawScene();
+    
+    void nextFrame();
 };
 
 #endif /* renderer_hpp */

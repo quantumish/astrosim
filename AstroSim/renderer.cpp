@@ -8,18 +8,20 @@
 
 #include "renderer.hpp"
 
-Renderer::Renderer(int speedParam)
+Renderer::Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam)
 {
     speed=speedParam;
+    window=windowParam;
+    pixelLength=pixelParam;
 }
 
-//std::array<double, 2> fixPosition(std::array<double, 2> coordinates, sf::RenderWindow &window)
-//{
-//    double pixelLength = pow(10, 2);
-//    coordinates[0] /= pixelLength;
-//    coordinates[1] /= pixelLength;
-//    return std::array<double, 2> {coordinates[0], window.getSize().y-coordinates[1]};
-//}
+std::array<double, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
+{
+    double pixelLength = pow(10, 2);
+    coordinates[0] /= pixelLength;
+    coordinates[1] /= pixelLength;
+    return std::array<double, 2> {coordinates[0], window->getSize().y-coordinates[1]};
+}
 
 void Renderer::addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam)
 {
@@ -32,34 +34,6 @@ void Renderer::addMatter(double massParam, double radiusParam, std::array<double
         forces.emplace_back(blank, matter[matter.size()-1], matter[i]);
         forces[forces.size()-1].updateGravity();
     }
-//    Node<Matter> * current = &matter;
-//    while (true)
-//    {
-//        if (current->value == node->value)
-//        {
-//            if (current->next == NULL)
-//            {
-//                break;
-//            }
-//            current = current->next;
-//            continue;
-//        }
-//        Force * gravitational_force1 = new Force({0,0}, *(current->value), *(node->value));
-//        gravitational_force1->updateGravity();
-//        Node<Force> * force1 = new Node<Force> (*gravitational_force1, NULL, NULL);
-//        forces.addToLinkedList(force1);
-//
-//        Force * gravitational_force2 = new Force({0,0}, *(node->value), *(current->value));
-//        gravitational_force2->updateGravity();
-//        Node<Force> * force2 = new Node<Force> (*gravitational_force2, NULL, NULL);
-//        forces.addToLinkedList(force2);
-//
-//        if (current->next == NULL)
-//        {
-//            break;
-//        }
-//        current = current->next;
-//    }
 }
 
 void Renderer::findTrajectory(Matter matter)
@@ -85,45 +59,53 @@ void Renderer::findTrajectory(Matter matter)
     }
 }
 
-//void Renderer::traceObjects(sf::RenderWindow window)
-//{
-////    sf::Vector2u size = {window.getSize().x, window.getSize().y};
-////    sf::Image canvas;
-////    canvas.create(size.x, size.y, sf::Color(0, 0, 0));
-//    Node<Matter> * node = &matter;
-//    while (true)
-//    {
-//        int x = round(node->value->position[0])/pixelLength;
-//        int y = round(node->value->position[1])/pixelLength;
-//        std::cout << x << " " << y << "\n";
-//        canvas.setPixel(x, y, sf::Color(255, 255, 255));
-//        if (node->next != NULL)
-//        {
-//            node = node->next;
-//        }
-//        else
-//        {
-//            break;
-//        }
-//    }
-//}
+void Renderer::traceObjects()
+{
+    sf::Vector2u size = {window->getSize().x, window->getSize().y};
+    sf::Image canvas;
+    canvas.create(size.x, size.y, sf::Color(0, 0, 0));
+    for (int i = 0; i<matter.size(); i++)
+    {
+        int x = round(matter[i].position[0])/pixelLength;
+        int y = round(matter[i].position[1])/pixelLength;
+        std::cout << x << " " << y << "\n";
+        canvas.setPixel(x, y, sf::Color(255, 255, 255));
+    }
+}
 
 void Renderer::updateScene()
 {
+    for (int i = 0; i < matter.size(); i++)
+    {
+        matter[i].acceleration = {0,0};
+    }
+    for (int i = 0; i < forces.size(); i++)
+    {
+        forces[i].updateGravity();
+        forces[i].applyForce();
+        forces[i].target->netForce.components[0] += forces[i].components[0];
+        forces[i].target->netForce.components[1] += forces[i].components[1];
+    }
+    for (int i = 0; i < matter.size(); i++)
+    {
+        matter[i].updatePosition();
+    }
+}
+
+void Renderer::drawScene()
+{
     for (Matter object : matter)
     {
-        object.acceleration = {0,0};
+        std::cout << object.position[0] << std::endl;
+        std::array<double, 2> fixedPosition = fixPosition(object.position);
+        sf::CircleShape shape (object.radius);
+        shape.setPosition(fixedPosition[0], fixedPosition[1]);
+        window->draw(shape);
     }
-    for (Force force : forces)
-    {
-        force.updateGravity();
-        force.applyForce();
-        force.target->netForce.components[0] += force.components[0];
-        force.target->netForce.components[1] += force.components[1];
-    }
-    for (Matter object : matter)
-    {
-        object.position = {10,0};
-        object.updatePosition();
-    }
+}
+
+void Renderer::nextFrame()
+{
+    updateScene();
+    drawScene();
 }
