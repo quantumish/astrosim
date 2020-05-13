@@ -31,7 +31,7 @@ public:
     
     Renderer(int speedParam);
     void addMatter(Node<Matter> * node);
-    void findTrajectory(Node<Matter> matter);
+    void findTrajectory(Matter matter);
     void checkCollisions();
     void updateScene();
 };

@@ -48,23 +48,9 @@ void Renderer::addMatter(Node<Matter> * node)
     }
 }
 
-void Renderer::findTrajectory(Node<Matter> objectParam)
+void Renderer::findTrajectory(Matter matter)
 {
-    // this is just a garbage solution. linked lists were a mistake
-    Matter object = *objectParam.value;
-    Node<Matter> * node = &matter;
-    Matter other{};// = *matter.next->value;
-    while (true)
-    {
-        if (node->value == &object)
-        {
-            continue;
-        }
-        Matter other = *node->value;
-    }
-
-    std::array<double, 2> barycenter = {(1/(object.mass*other.mass))*(object.mass*object.position[0] + other.mass*other.position[0]), (1/(object.mass*other.mass))*(object.mass*object.position[1] + other.mass*other.position[1])};
-    std::array<double, 2> relativeDistance = {object.position[0]-other.position[0], object.position[1]-other.position[1]};
+    
 };
 
 void Renderer::updateScene()
