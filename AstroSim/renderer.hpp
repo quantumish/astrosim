@@ -41,6 +41,8 @@ public:
     void addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
     void removeMatter(int index);
     
+    void diagnoseForces();
+    
     void findTrajectory(Matter matter);
     void checkCollisions();
     void traceObjects();

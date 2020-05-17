@@ -35,11 +35,10 @@ int main(int, char const**)
     
     sf::RenderWindow * windowPointer = &window;
     Renderer renderer(0, windowPointer, pow(10, 2));
-    renderer.addMatter(pow(10,1), 3, {30000, 110000}, {0,0});
+    renderer.addMatter(pow(10,1), 1, {39000, 100000}, {0,300});
     renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
     renderer.addMatter(pow(10,10), 5, {40000, 140000}, {30,-5});
-    renderer.addMatter(pow(10,15), 9, {50000, 110000}, {30,5});
-    renderer.addMatter(pow(10,13), 7, {60000, 120000}, {2,-10});
+//    renderer.addMatter(pow(10,13), 7, {60000, 120000}, {2,-10});
     int frames = 0;
     while (window.isOpen())
     {

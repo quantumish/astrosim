@@ -15,7 +15,7 @@ Renderer::Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelPara
     pixelLength=pixelParam;
     sf::Vector2u size = {window->getSize().x, window->getSize().y};
     canvas.create(size.x, size.y, sf::Color(0, 0, 0));
-    addMatter(pow(10,1), 1, {10000000000000, 0}, {0,0});
+    addMatter(pow(10,0), 1, {10000000000000, 0}, {0,0});
 }
 
 std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
@@ -35,17 +35,18 @@ void Renderer::addMatter(double massParam, double radiusParam, std::array<double
     for (int i = 0; i < matter.size()-1; i++)
     {
         std::array<double, 2> blank = {0,0}; // for some reason it only works if i initialize it first... type issues?
-//        Force * force1 = new Force (blank, matter[i], matter[matter.size()-1]);
-//        forces.push_back(*force1);
+        std::cout << ":/ " << matter[i].mass << " " << matter[matter.size()-1].mass << "\n";
         forces.emplace_back(blank, matter[i], matter[matter.size()-1]);
         forces[forces.size()-1].updateGravity();
         if (forces[forces.size()-1].warn == true)
         {
             warnCount += 1;
         }
-//        Force * force2 = new Force (blank, matter[matter.size()-1], matter[i]);
-//        forces.push_back(*force2);
         forces.emplace_back(blank, matter[matter.size()-1], matter[i]);
+        if (forces[forces.size()-1].warn == true)
+        {
+            warnCount += 1;
+        }
         forces[forces.size()-1].updateGravity();
     }
 }
@@ -61,6 +62,23 @@ void Renderer::removeMatter(int index)
         }
     }
     matter.erase(matter.begin()+index);
+}
+
+void Renderer::diagnoseForces()
+{
+    std::cout << "------BEGIN DIAGNOSIS------\n";
+    for (int i = 0; i < matter.size(); i++)
+    {
+        std::cout << &matter[i] << "(" << matter[i].mass << "): \n";
+        for (int j = 0; j < forces.size(); j++)
+        {
+            if (&matter[i] == forces[j].target || &matter[i] == forces[j].source)
+            {
+                std::cout << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << std::endl;
+            }
+        }
+    }
+    std::cout << "------END DIAGNOSIS------\n";
 }
 
 void Renderer::findTrajectory(Matter matter)
@@ -163,6 +181,7 @@ void Renderer::drawScene()
 void Renderer::nextFrame()
 {
     updateScene();
+    diagnoseForces();
     checkCollisions();
     traceObjects();
     drawScene();
