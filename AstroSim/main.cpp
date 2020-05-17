@@ -1,4 +1,3 @@
-
 //
 // Disclaimer:
 // ----------
@@ -24,20 +23,23 @@ int main(int, char const**)
 {
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
-
+    
     // Set the Icon
     sf::Image icon;
     if (!icon.loadFromFile(resourcePath() + "icon.png")) {
         return EXIT_FAILURE;
     }
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
-
+    
     // run the program as long as the window is open
-
+    
     sf::RenderWindow * windowPointer = &window;
     Renderer renderer(0, windowPointer, pow(10, 2));
     renderer.addMatter(pow(10,1), 3, {30000, 110000}, {0,0});
     renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
+    renderer.addMatter(pow(10,10), 5, {40000, 140000}, {30,-5});
+    renderer.addMatter(pow(10,15), 9, {50000, 110000}, {30,5});
+    renderer.addMatter(pow(10,13), 7, {60000, 120000}, {2,-10});
     int frames = 0;
     while (window.isOpen())
     {
@@ -49,16 +51,17 @@ int main(int, char const**)
             if (event.type == sf::Event::Closed)
                 window.close();
         }
-
-//         clear the window with black color
+        
+        //         clear the window with black color
         window.clear();
-
-//         draw everything here...
-//         window.draw(...);
+        
+        //         draw everything here...
+        //         window.draw(...);
         
         renderer.nextFrame();
         window.display();
         frames++;
     }
+    std::cout << "CLOSED EVENT RECEIEVED.\nError Count: " << renderer.errCount << " Warn Count: " << renderer.warnCount << std::endl;
     return EXIT_SUCCESS;
 }

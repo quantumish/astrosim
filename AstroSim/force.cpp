@@ -24,21 +24,31 @@ Force::Force()
 
 void Force::updateGravity()
 {
+    warn = false;
+    err = false;
     double universalGravitationalConstant = 6.7408 * pow(10, -11);
     std::array<double, 2> distanceComponents = {source->position[0]-target->position[0], source->position[1]-target->position[1]};
     double distance = sqrt(pow(distanceComponents[0],2)+pow(distanceComponents[1],2));
     double magnitude = (source->mass * target->mass * universalGravitationalConstant)/pow(distance,2);
-    std::cout << "( " << source->mass << " * " << target->mass << " * " << universalGravitationalConstant << " ) / " << pow(distance,2) << " = " << magnitude << std::endl;
+//    std::cout << "( " << source->mass << " * " << target->mass << " * " << universalGravitationalConstant << " ) / " << pow(distance,2) << " = " << magnitude << std::endl;
     double pi = 3.14159265359;
     double direction;
     direction = atan2(distanceComponents[1], distanceComponents[0]);
-    components[0] = cos(direction)*magnitude;
-    components[1] = sin(direction)*magnitude;
+    if (isinf(magnitude) == false && isnan(magnitude) == false)
+    {
+        components[0] = cos(direction)*magnitude;
+        components[1] = sin(direction)*magnitude;
+    }
+    else
+    {
+        std::cout << "WARNING: Force magnitude is infinity/NaN. This is not good.\n";
+        warn = true;
+    }
 }
 
 void Force::applyForce()
 {
     target->acceleration[0] += components[0]/target->mass;
-    std::cout << "APPLY " << components[0] << " / " << target->mass << " = " << target->acceleration[0] << "\n";
+//    std::cout << "APPLY " << components[0] << " / " << target->mass << " = " << target->acceleration[0] << "\n";
     target->acceleration[1] += components[1]/target->mass;
 }

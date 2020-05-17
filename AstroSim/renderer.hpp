@@ -24,11 +24,14 @@ class Renderer
 {
 public:
     sf::RenderWindow * window;
-
+    
     sf::Image canvas;
     
     int speed;
     int pixelLength;
+    
+    int warnCount = 0;
+    int errCount = 0;
     
     std::vector<Matter> matter;
     std::vector<Force> forces;

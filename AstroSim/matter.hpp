@@ -34,7 +34,6 @@ public:
     std::array<double, 2> position;
     std::array<double, 2> velocity;
     std::array<double, 2> acceleration;
-    std::vector<Force> forces;
     Force netForce{};
     std::vector<std::array<double, 2>> history;
     Trajectory orbit;
@@ -42,6 +41,7 @@ public:
     sf::CircleShape shape;
     
     Matter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
+    Matter(const Matter &src);
     void updatePosition();
     Matter();
 };

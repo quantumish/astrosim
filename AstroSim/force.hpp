@@ -21,6 +21,8 @@ public:
     std::array<double, 2> components;
     Matter * source;
     Matter * target;
+    bool warn;
+    bool err;
     
     Force(std::array<double, 2> componentsParam, Matter &targetParam, Matter &sourceParam);
     Force();

@@ -16,7 +16,7 @@ Matter::Matter(double massParam, double radiusParam, std::array<double, 2> posit
     position = positionParam;
     velocity = velocityParam;
     shape.setRadius(radius);
-    shape.setFillColor(sf::Color::Red);
+//    shape.setFillColor(sf::Color::Red);
     netForce.target = this;
 }
 
@@ -30,15 +30,26 @@ Matter::Matter()
     netForce.target = this;
 }
 
+Matter::Matter(const Matter &src)
+{
+    mass = src.mass;
+    radius = src.radius;
+    position = src.position;
+    velocity = src.velocity;
+    acceleration = src.acceleration;
+    netForce = src.netForce;
+    history = src.history;
+    orbit = src.orbit;
+    shape = *(new sf::CircleShape (radius));
+}
+
 void Matter::updatePosition()
 {
-    netForce.applyForce();
-    
-    acceleration[0] = netForce.components[0]/mass;
-    acceleration[1] = netForce.components[1]/mass;
-    
-//    std::cout << acceleration[0] << " " << acceleration[1] << std::endl;
-    
+//    netForce.applyForce();
+//    
+//    acceleration[0] = netForce.components[0]/mass;
+//    acceleration[1] = netForce.components[1]/mass;
+//        
     velocity[0] += acceleration[0];
     velocity[1] += acceleration[1];
     position[0] += velocity[0];

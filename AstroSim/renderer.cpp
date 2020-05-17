@@ -15,6 +15,7 @@ Renderer::Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelPara
     pixelLength=pixelParam;
     sf::Vector2u size = {window->getSize().x, window->getSize().y};
     canvas.create(size.x, size.y, sf::Color(0, 0, 0));
+    addMatter(pow(10,1), 1, {10000000000000, 0}, {0,0});
 }
 
 std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
@@ -34,8 +35,16 @@ void Renderer::addMatter(double massParam, double radiusParam, std::array<double
     for (int i = 0; i < matter.size()-1; i++)
     {
         std::array<double, 2> blank = {0,0}; // for some reason it only works if i initialize it first... type issues?
+//        Force * force1 = new Force (blank, matter[i], matter[matter.size()-1]);
+//        forces.push_back(*force1);
         forces.emplace_back(blank, matter[i], matter[matter.size()-1]);
         forces[forces.size()-1].updateGravity();
+        if (forces[forces.size()-1].warn == true)
+        {
+            warnCount += 1;
+        }
+//        Force * force2 = new Force (blank, matter[matter.size()-1], matter[i]);
+//        forces.push_back(*force2);
         forces.emplace_back(blank, matter[matter.size()-1], matter[i]);
         forces[forces.size()-1].updateGravity();
     }
@@ -45,7 +54,8 @@ void Renderer::removeMatter(int index)
 {
     for (int i = 0; i < forces.size(); i++)
     {
-        if (forces[i].target == &matter[index])
+//        std::cout << forces[i].target << " " << forces[i].source << " " << &matter[index] << std::endl;
+        if (forces[i].target == &matter[index] || forces[i].source == &matter[index])
         {
             forces.erase(forces.begin() + i);
         }
@@ -101,6 +111,7 @@ void Renderer::checkCollisions()
             double distSquared = pow(((matter[i].position[0] + matter[i].radius) - (matter[j].position[0] + matter[j].radius)),2) + pow(((matter[i].position[1] + matter[i].radius) - (matter[j].position[1] + matter[j].radius)),2);
             if (distSquared < pow(matter[i].radius+matter[j].radius,4))
             {
+                std::cout << "COLLISION\n";
                 removeMatter(i);
             }
         }
@@ -116,9 +127,14 @@ void Renderer::updateScene()
     for (int i = 0; i < forces.size(); i++)
     {
         forces[i].updateGravity();
+        if (forces[i].warn == true)
+        {
+            warnCount += 1;
+        }
+//        std::cout << "COMP " << forces[i].components[0] << " " << forces[i].components[1] << " " << forces[i].target << " (" << forces[i].target->mass << ") " << forces[i].source << " (" << forces[i].source->mass << ")\n";
         forces[i].applyForce();
-        forces[i].target->netForce.components[0] += forces[i].components[0];
-        forces[i].target->netForce.components[1] += forces[i].components[1];
+//        forces[i].target->netForce.components[0] += forces[i].components[0];
+//        forces[i].target->netForce.components[1] += forces[i].components[1];
     }
     for (int i = 0; i < matter.size(); i++)
     {
@@ -136,6 +152,7 @@ void Renderer::drawScene()
     for (Matter object : matter)
     {
         std::array<unsigned int, 2> fixedPosition = fixPosition(object.position);
+//        std::cout << "DRAWING " << object.radius << "\n";
         sf::CircleShape shape (object.radius);
         shape.setPosition(fixedPosition[0]-object.radius, fixedPosition[1]-object.radius);
         window->draw(shape);
