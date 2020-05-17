@@ -40,6 +40,7 @@ public:
     std::array<unsigned int, 2> fixPosition(std::array<double, 2> coordinates);
     void addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
     void removeMatter(int index);
+    void initializeForces();
     
     void diagnoseForces();
     

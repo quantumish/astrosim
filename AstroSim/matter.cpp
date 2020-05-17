@@ -45,8 +45,10 @@ Matter::Matter(const Matter &src)
 
 void Matter::updatePosition()
 {
-//    netForce.applyForce();
-//    
+//    std::cout << netForce.target << " VS " << this << std::endl;
+    netForce.target = this;
+    netForce.applyForce();
+//
 //    acceleration[0] = netForce.components[0]/mass;
 //    acceleration[1] = netForce.components[1]/mass;
 //        

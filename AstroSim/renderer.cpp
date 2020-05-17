@@ -15,7 +15,7 @@ Renderer::Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelPara
     pixelLength=pixelParam;
     sf::Vector2u size = {window->getSize().x, window->getSize().y};
     canvas.create(size.x, size.y, sf::Color(0, 0, 0));
-    addMatter(pow(10,0), 1, {10000000000000, 0}, {0,0});
+//    addMatter(pow(10,0), 1, {10000000000000, 0}, {0,0});
 }
 
 std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
@@ -32,22 +32,34 @@ std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordina
 void Renderer::addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam)
 {
     matter.emplace_back(massParam, radiusParam, positionParam, velocityParam);
-    for (int i = 0; i < matter.size()-1; i++)
+}
+
+void Renderer::initializeForces()
+{
+    for (int i = 0; i < matter.size(); i++)
     {
-        std::array<double, 2> blank = {0,0}; // for some reason it only works if i initialize it first... type issues?
-        std::cout << ":/ " << matter[i].mass << " " << matter[matter.size()-1].mass << "\n";
-        forces.emplace_back(blank, matter[i], matter[matter.size()-1]);
-        forces[forces.size()-1].updateGravity();
-        if (forces[forces.size()-1].warn == true)
+        for (int j = 0; j < matter.size(); j++)
         {
-            warnCount += 1;
+            if (&forces[j] == &forces[i])
+            {
+                continue;
+            }
+            std::array<double, 2> blank = {0,0}; // for some reason it only works if i initialize it first... type issues?
+            std::cout << ":/ " << matter[j].mass << " " << matter[i].mass << "\n";
+            forces.emplace_back(blank, matter[j], matter[i]);
+            forces[forces.size()-1].updateGravity();
+            if (forces[forces.size()-1].warn == true)
+            {
+                warnCount += 1;
+            }
+            forces.emplace_back(blank, matter[i], matter[j]);
+            forces[forces.size()-1].updateGravity();
+            if (forces[forces.size()-1].warn == true)
+            {
+                warnCount += 1;
+            }
+            forces[forces.size()-1].updateGravity();
         }
-        forces.emplace_back(blank, matter[matter.size()-1], matter[i]);
-        if (forces[forces.size()-1].warn == true)
-        {
-            warnCount += 1;
-        }
-        forces[forces.size()-1].updateGravity();
     }
 }
 
@@ -66,15 +78,39 @@ void Renderer::removeMatter(int index)
 
 void Renderer::diagnoseForces()
 {
-    std::cout << "------BEGIN DIAGNOSIS------\n";
+    std::cout << "------BEGIN DIAGNOSIS FOR SIZE " << forces.size() << "------\n";
+//    for (int i = 0; i < matter.size(); i++)
+//    {
+//        std::cout << &matter[i] << "(" << matter[i].mass << "): \n";
+//        for (int j = 0; j < forces.size(); j++)
+//        {
+//            if (&matter[i] == forces[j].target || &matter[i] == forces[j].source)
+//            {
+//                std::cout << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << std::endl;
+//            }
+//        }
+//    }
+//    for (int j = 0; j < forces.size(); j++)
+//    {
+//        std::cout << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << forces[j].components[0] << " " << forces[j].components[1] <<std::endl;
+//    }
     for (int i = 0; i < matter.size(); i++)
     {
         std::cout << &matter[i] << "(" << matter[i].mass << "): \n";
+        std::cout << "\tFORCES IN: \n";
         for (int j = 0; j < forces.size(); j++)
         {
-            if (&matter[i] == forces[j].target || &matter[i] == forces[j].source)
+            if (&matter[i] == forces[j].target)
             {
-                std::cout << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << std::endl;
+                std::cout << "\t\t" << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << forces[j].components[0] << " " << forces[j].components[1] << std::endl;
+            }
+        }
+        std::cout << "\tFORCES OUT: \n";
+        for (int j = 0; j < forces.size(); j++)
+        {
+            if (&matter[i] == forces[j].source)
+            {
+                std::cout << "\t\t" << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << forces[j].components[0] << " " << forces[j].components[1] << std::endl;
             }
         }
     }
@@ -126,8 +162,8 @@ void Renderer::checkCollisions()
             {
                 continue;
             }
-            double distSquared = pow(((matter[i].position[0] + matter[i].radius) - (matter[j].position[0] + matter[j].radius)),2) + pow(((matter[i].position[1] + matter[i].radius) - (matter[j].position[1] + matter[j].radius)),2);
-            if (distSquared < pow(matter[i].radius+matter[j].radius,4))
+            double distSquared = pow(((matter[i].position[0] + matter[i].radius*pixelLength) - (matter[j].position[0] + matter[j].radius*pixelLength)),2) + pow(((matter[i].position[1] + matter[i].radius*pixelLength) - (matter[j].position[1] + matter[j].radius*pixelLength)),2);
+            if (distSquared < pow(matter[i].radius*pixelLength+matter[j].radius*pixelLength,2))
             {
                 std::cout << "COLLISION\n";
                 removeMatter(i);
@@ -150,9 +186,9 @@ void Renderer::updateScene()
             warnCount += 1;
         }
 //        std::cout << "COMP " << forces[i].components[0] << " " << forces[i].components[1] << " " << forces[i].target << " (" << forces[i].target->mass << ") " << forces[i].source << " (" << forces[i].source->mass << ")\n";
-        forces[i].applyForce();
-//        forces[i].target->netForce.components[0] += forces[i].components[0];
-//        forces[i].target->netForce.components[1] += forces[i].components[1];
+//        forces[i].applyForce();
+        forces[i].target->netForce.components[0] += forces[i].components[0];
+        forces[i].target->netForce.components[1] += forces[i].components[1];
     }
     for (int i = 0; i < matter.size(); i++)
     {
@@ -182,7 +218,7 @@ void Renderer::nextFrame()
 {
     updateScene();
     diagnoseForces();
-    checkCollisions();
+//    checkCollisions();
     traceObjects();
     drawScene();
 }
