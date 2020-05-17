@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE6810C4245DDA8A00E68AD5 /* linked_list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE6810C2245DDA8A00E68AD5 /* linked_list.cpp */; };
 		CEF43214244D00B800C7D6D0 /* ResourcePath.mm in Sources */ = {isa = PBXBuildFile; fileRef = CEF43213244D00B800C7D6D0 /* ResourcePath.mm */; };
 		CEF43217244D00B800C7D6D0 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CEF43216244D00B800C7D6D0 /* main.cpp */; };
 		CEF4321E244D00B800C7D6D0 /* sansation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CEF4321D244D00B800C7D6D0 /* sansation.ttf */; };
@@ -18,8 +17,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		CE6810C2245DDA8A00E68AD5 /* linked_list.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = linked_list.cpp; sourceTree = "<group>"; };
-		CE6810C3245DDA8A00E68AD5 /* linked_list.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = linked_list.hpp; sourceTree = "<group>"; };
 		CEF4320E244D00B800C7D6D0 /* AstroSim.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AstroSim.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEF43212244D00B800C7D6D0 /* AstroSim-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AstroSim-Info.plist"; sourceTree = "<group>"; };
 		CEF43213244D00B800C7D6D0 /* ResourcePath.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ResourcePath.mm; sourceTree = "<group>"; };
@@ -72,8 +69,6 @@
 				CEF43227244D00D100C7D6D0 /* matter.cpp */,
 				CEF4322E244D00F300C7D6D0 /* force.hpp */,
 				CEF4322D244D00F300C7D6D0 /* force.cpp */,
-				CE6810C3245DDA8A00E68AD5 /* linked_list.hpp */,
-				CE6810C2245DDA8A00E68AD5 /* linked_list.cpp */,
 				CEF4322B244D00D800C7D6D0 /* renderer.hpp */,
 				CEF4322A244D00D800C7D6D0 /* renderer.cpp */,
 				CEF43226244D00C500C7D6D0 /* main.hpp */,
@@ -190,7 +185,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CE6810C4245DDA8A00E68AD5 /* linked_list.cpp in Sources */,
 				CEF4322C244D00D800C7D6D0 /* renderer.cpp in Sources */,
 				CEF43217244D00B800C7D6D0 /* main.cpp in Sources */,
 				CEF4322F244D00F300C7D6D0 /* force.cpp in Sources */,
@@ -212,6 +206,7 @@
 					/Library/Frameworks/,
 					"$(inherited)",
 				);
+				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,
@@ -256,6 +251,7 @@
 					/Library/Frameworks/,
 					"$(inherited)",
 				);
+				GCC_NO_COMMON_BLOCKS = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				HEADER_SEARCH_PATHS = (
 					/usr/local/include/,
