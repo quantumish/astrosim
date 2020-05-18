@@ -9,7 +9,7 @@
 #include "matter.hpp"
 #include "force.hpp"
 
-Matter::Matter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam)
+Matter::Matter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam)
 {
     mass = massParam;
     radius = radiusParam;
@@ -45,6 +45,7 @@ Matter::Matter(const Matter &src)
 
 void Matter::updatePosition()
 {
+    prevPosition = position;
 //    std::cout << netForce.target << " VS " << this << std::endl;
     netForce.target = this;
     netForce.applyForce();

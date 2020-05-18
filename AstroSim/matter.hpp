@@ -31,16 +31,18 @@ class Matter
 public:
     double mass;
     double radius;
-    std::array<double, 2> position;
-    std::array<double, 2> velocity;
-    std::array<double, 2> acceleration;
+    Eigen::Vector2d position;
+    Eigen::Vector2d velocity;
+    Eigen::Vector2d acceleration;
+    Eigen::Vector2d previousPosition;
     Force netForce{};
+    Eigen::Vector2d prevPosition;
     std::vector<std::array<double, 2>> history;
     Trajectory orbit;
     
     sf::CircleShape shape;
     
-    Matter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
+    Matter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam);
     Matter(const Matter &src);
     void updatePosition();
     Matter();
