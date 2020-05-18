@@ -18,7 +18,7 @@ Renderer::Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelPara
 //    addMatter(pow(10,0), 1, {10000000000000, 0}, {0,0});
 }
 
-std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordinates)
+Eigen::Vector2d Renderer::fixPosition(Eigen::Vector2d coordinates)
 {
     std::array<unsigned int, 2> fixed_coords;
     fixed_coords[0] = round(coordinates[0]);
@@ -26,10 +26,10 @@ std::array<unsigned int, 2> Renderer::fixPosition(std::array<double, 2> coordina
     double pixelLength = pow(10, 2);
     fixed_coords[0] /= pixelLength;
     fixed_coords[1] /= pixelLength;
-    return std::array<unsigned int, 2> {fixed_coords[0], window->getSize().y-fixed_coords[1]};
+    return Eigen::Vector2d {fixed_coords[0], window->getSize().y-fixed_coords[1]};
 }
 
-void Renderer::addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam)
+void Renderer::addMatter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam)
 {
     matter.emplace_back(massParam, radiusParam, positionParam, velocityParam);
 }
@@ -144,7 +144,7 @@ void Renderer::traceObjects()
 {
     for (int i = 0; i<matter.size(); i++)
     {
-        std::array<unsigned int,2> loc = fixPosition(matter[i].position);
+        Eigen::Vector2d loc = fixPosition(matter[i].position);
         if (loc[0] < window->getSize().x && loc[1] < window->getSize().y)
         {
             canvas.setPixel(loc[0], loc[1], sf::Color(255,255,255,100));
@@ -154,19 +154,61 @@ void Renderer::traceObjects()
 
 void Renderer::checkCollisions()
 {
+//    for (int i = 0; i<matter.size(); i++)
+//    {
+//        for (int j = 0; j<matter.size(); j++)
+//        {
+//            if (&matter[j] == &matter[i])
+//            {
+//                continue;
+//            }
+////            double dist = sqrt(((matter[i].position[0] + matter[i].radius*pixelLength) - (matter[j].position[0] + matter[j].radius*pixelLength)) + ((matter[i].position[1] + matter[i].radius*pixelLength) - (matter[j].position[1] + matter[j].radius*pixelLength)));
+////            std::cout << dist << " " << matter[i].radius*pixelLength+matter[j].radius*pixelLength << " for " << &matter[i] << " and " << &matter[j] << "\n";
+////
+////            if (dist < (matter[i].radius*pixelLength)+(matter[j].radius*pixelLength) && matter[i].mass > matter[j].mass)
+////            {
+////                std::cout << "COLLISION\n";
+////                removeMatter(j);
+////            }
+//        }
+//    }
     for (int i = 0; i<matter.size(); i++)
     {
+        // Collision detection was going to be CCD but that seemed too expensive so it draws a line between frames and checks for collision
+        // using this formula: https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm which I very
+        // much do not understand — parametric equations confuse me! However, the code segment provided in the answer allowed for a vague
+        // reconstruction of the algorithm. TODO: Learn how the derivation of this works and read up on some more linear algebra sometime!
+        Eigen::Vector2d direction = matter[i].position - matter[i].prevPosition;
         for (int j = 0; j<matter.size(); j++)
         {
-            if (&matter[j] == &matter[i])
+            Eigen::Vector2d radius {matter[j].radius, matter[j].radius};
+            Eigen::Vector2d center = matter[j].position + radius;
+            Eigen::Vector2d distance = matter[i].prevPosition - center;
+            double a = direction.dot(direction);
+            double b = 2 * (distance.dot(direction));
+            double c = (distance.dot(distance)) - (radius.dot(radius));
+            double discriminant = b*b-4*a*c;
+            if (discriminant < 0)
             {
                 continue;
             }
-            double distSquared = pow(((matter[i].position[0] + matter[i].radius*pixelLength) - (matter[j].position[0] + matter[j].radius*pixelLength)),2) + pow(((matter[i].position[1] + matter[i].radius*pixelLength) - (matter[j].position[1] + matter[j].radius*pixelLength)),2);
-            if (distSquared < pow(matter[i].radius*pixelLength+matter[j].radius*pixelLength,2))
+            discriminant = sqrt(discriminant);
+            double t1 = (-b - discriminant)/(2*a);
+            double t2 = (-b + discriminant)/(2*a);
+            std::cout << t1 << " " << t2 << std::endl;
+            if( t1 >= 0 && t1 <= 1 )
             {
-                std::cout << "COLLISION\n";
-                removeMatter(i);
+                if (matter[i].mass >= matter[j].mass)
+                {
+                    removeMatter(j);
+                }
+            }
+            if( t2 >= 0 && t2 <= 1 )
+            {
+                if (matter[i].mass >= matter[j].mass)
+                {
+                    removeMatter(j);
+                }
             }
         }
     }
@@ -205,8 +247,7 @@ void Renderer::drawScene()
     window->draw(backgroundSprite);
     for (Matter object : matter)
     {
-        std::array<unsigned int, 2> fixedPosition = fixPosition(object.position);
-//        std::cout << "DRAWING " << object.radius << "\n";
+        Eigen::Vector2d fixedPosition = fixPosition(object.position);
         sf::CircleShape shape (object.radius);
         shape.setPosition(fixedPosition[0]-object.radius, fixedPosition[1]-object.radius);
         window->draw(shape);
@@ -218,7 +259,7 @@ void Renderer::nextFrame()
 {
     updateScene();
     diagnoseForces();
-//    checkCollisions();
+    checkCollisions();
     traceObjects();
     drawScene();
 }

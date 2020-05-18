@@ -59,10 +59,13 @@ int main(int, char const**)
     renderer.addMatter(pow(10,1), 1, {40000, 123000}, {-30,0});
     renderer.addMatter(pow(10,1), 1, {40000, 124000}, {-30,0});
 
-    // "control" system that isn't very separate :/
+    // "control" system that demonstrates that forces between other objects still work
     renderer.addMatter(pow(10,17), 10, {200000, 120000}, {0,0});
     renderer.addMatter(pow(10,1), 1, {200000, 110000}, {10,20});
-
+    
+    // show that collisions are a thing
+    renderer.addMatter(pow(10,1), 1, {40000, 95000}, {0,0});
+    
     renderer.initializeForces();
     while (window.isOpen())
     {

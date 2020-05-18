@@ -37,8 +37,8 @@ public:
     std::vector<Force> forces;
     
     Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam);
-    std::array<unsigned int, 2> fixPosition(std::array<double, 2> coordinates);
-    void addMatter(double massParam, double radiusParam, std::array<double, 2> positionParam, std::array<double, 2> velocityParam);
+    Eigen::Vector2d fixPosition(Eigen::Vector2d coordinates);
+    void addMatter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam);
     void removeMatter(int index);
     void initializeForces();
     
