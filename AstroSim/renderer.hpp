@@ -24,9 +24,9 @@ class Renderer
 {
 public:
     sf::RenderWindow * window;
-    
     sf::Image canvas;
-    
+
+    std::vector<bool> featureBits;
     int speed;
     int pixelLength;
     
@@ -43,6 +43,8 @@ public:
     void initializeForces();
     
     void diagnoseForces();
+    
+    void momentumCollision(Matter a, Matter b, int aIndex, bool elastic);
     
     void findTrajectory(Matter matter);
     void checkCollisions();

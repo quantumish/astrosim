@@ -32,6 +32,7 @@ public:
     double mass;
     double radius;
     Eigen::Vector2d position;
+    Eigen::Vector2d screenPosition;
     Eigen::Vector2d velocity;
     Eigen::Vector2d acceleration;
     Eigen::Vector2d previousPosition;

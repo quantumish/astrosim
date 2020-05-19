@@ -79,21 +79,6 @@ void Renderer::removeMatter(int index)
 void Renderer::diagnoseForces()
 {
     std::cout << "------BEGIN DIAGNOSIS FOR SIZE " << forces.size() << "------\n";
-//    for (int i = 0; i < matter.size(); i++)
-//    {
-//        std::cout << &matter[i] << "(" << matter[i].mass << "): \n";
-//        for (int j = 0; j < forces.size(); j++)
-//        {
-//            if (&matter[i] == forces[j].target || &matter[i] == forces[j].source)
-//            {
-//                std::cout << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << std::endl;
-//            }
-//        }
-//    }
-//    for (int j = 0; j < forces.size(); j++)
-//    {
-//        std::cout << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << forces[j].components[0] << " " << forces[j].components[1] <<std::endl;
-//    }
     for (int i = 0; i < matter.size(); i++)
     {
         std::cout << &matter[i] << "(" << matter[i].mass << "): \n";
@@ -152,6 +137,16 @@ void Renderer::traceObjects()
     }
 }
 
+// Strange naming convention is a byproduct of an attempt to roll elastic collision and inelastic collision into the same function
+// as they're mainly the same type of calculations. You may wonder why they're even in a separate function: it allows me to separately
+// work on collision detection and collisions so one can be functional while the other one isn't!
+void Renderer::momentumCollision(Matter a, Matter b, int aIndex, bool elastic)
+{
+    b.velocity = (a.mass * a.velocity + b.mass * b.velocity)/(a.mass + b.mass);
+    b.mass = a.mass + b.mass;
+    removeMatter(aIndex);
+}
+
 void Renderer::checkCollisions()
 {
 //    for (int i = 0; i<matter.size(); i++)
@@ -162,14 +157,14 @@ void Renderer::checkCollisions()
 //            {
 //                continue;
 //            }
-////            double dist = sqrt(((matter[i].position[0] + matter[i].radius*pixelLength) - (matter[j].position[0] + matter[j].radius*pixelLength)) + ((matter[i].position[1] + matter[i].radius*pixelLength) - (matter[j].position[1] + matter[j].radius*pixelLength)));
-////            std::cout << dist << " " << matter[i].radius*pixelLength+matter[j].radius*pixelLength << " for " << &matter[i] << " and " << &matter[j] << "\n";
-////
-////            if (dist < (matter[i].radius*pixelLength)+(matter[j].radius*pixelLength) && matter[i].mass > matter[j].mass)
-////            {
-////                std::cout << "COLLISION\n";
-////                removeMatter(j);
-////            }
+//            double dist = pow(((matter[i].position[0] + matter[i].radius) - (matter[j].position[0] + matter[j].radius)) + ((matter[i].position[1] + matter[i].radius) - (matter[j].position[1] + matter[j].radius)),2);
+//            std::cout << dist << " " << matter[i].radius*pixelLength+matter[j].radius*pixelLength << " for " << &matter[i] << " and " << &matter[j] << "\n";
+//
+//            if (dist < (matter[i].radius)+(matter[j].radius) && matter[i].mass > matter[j].mass)
+//            {
+//                std::cout << "COLLISION\n";
+//                momentumCollision(matter[j], matter[i], j, false);
+//            }
 //        }
 //    }
     for (int i = 0; i<matter.size(); i++)
@@ -181,7 +176,7 @@ void Renderer::checkCollisions()
         Eigen::Vector2d direction = matter[i].position - matter[i].prevPosition;
         for (int j = 0; j<matter.size(); j++)
         {
-            Eigen::Vector2d radius {matter[j].radius, matter[j].radius};
+            Eigen::Vector2d radius {matter[j].radius*pixelLength, matter[j].radius*pixelLength};
             Eigen::Vector2d center = matter[j].position + radius;
             Eigen::Vector2d distance = matter[i].prevPosition - center;
             double a = direction.dot(direction);
@@ -195,23 +190,26 @@ void Renderer::checkCollisions()
             discriminant = sqrt(discriminant);
             double t1 = (-b - discriminant)/(2*a);
             double t2 = (-b + discriminant)/(2*a);
-            std::cout << t1 << " " << t2 << std::endl;
+            std::cout << t1 << " DISCRIMINANT THINGS " << t2 << std::endl;
             if( t1 >= 0 && t1 <= 1 )
             {
-                if (matter[i].mass >= matter[j].mass)
+                if (matter[i].mass > matter[j].mass)
                 {
+                    std::cout << matter[i].mass << " is obviously higher than " << matter[j].mass << " so YEET\n";
                     removeMatter(j);
                 }
             }
             if( t2 >= 0 && t2 <= 1 )
             {
-                if (matter[i].mass >= matter[j].mass)
+                if (matter[i].mass > matter[j].mass)
                 {
+                    std::cout << matter[i].mass << " is obviously higher than " << matter[j].mass << " so YEET\n";
                     removeMatter(j);
                 }
             }
         }
     }
+    
 }
 
 void Renderer::updateScene()
@@ -247,9 +245,9 @@ void Renderer::drawScene()
     window->draw(backgroundSprite);
     for (Matter object : matter)
     {
-        Eigen::Vector2d fixedPosition = fixPosition(object.position);
+        object.screenPosition = fixPosition(object.position);
         sf::CircleShape shape (object.radius);
-        shape.setPosition(fixedPosition[0]-object.radius, fixedPosition[1]-object.radius);
+        shape.setPosition(object.screenPosition[0]-object.radius, object.screenPosition[1]-object.radius);
         window->draw(shape);
     }
 }
@@ -258,7 +256,7 @@ void Renderer::drawScene()
 void Renderer::nextFrame()
 {
     updateScene();
-    diagnoseForces();
+    // diagnoseForces();
     checkCollisions();
     traceObjects();
     drawScene();
