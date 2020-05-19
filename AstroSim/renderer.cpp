@@ -142,70 +142,55 @@ void Renderer::traceObjects()
 // work on collision detection and collisions so one can be functional while the other one isn't!
 void Renderer::momentumCollision(Matter a, Matter b, int aIndex, bool elastic)
 {
-    b.velocity = (a.mass * a.velocity + b.mass * b.velocity)/(a.mass + b.mass);
-    b.mass = a.mass + b.mass;
-    removeMatter(aIndex);
+    if (elastic == false)
+    {
+        b.velocity = (a.mass * a.velocity + b.mass * b.velocity)/(a.mass + b.mass);
+        b.mass = a.mass + b.mass;
+        removeMatter(aIndex);
+    }
+    else
+    {
+        // crap this needs some physics that i don't wanna do rn
+    }
 }
 
+// Code basically taken from https://ericleong.me/research/circle-circle and adapted some. TODO: Learn the linear algebra behind this!
 void Renderer::checkCollisions()
 {
-//    for (int i = 0; i<matter.size(); i++)
-//    {
-//        for (int j = 0; j<matter.size(); j++)
-//        {
-//            if (&matter[j] == &matter[i])
-//            {
-//                continue;
-//            }
-//            double dist = pow(((matter[i].position[0] + matter[i].radius) - (matter[j].position[0] + matter[j].radius)) + ((matter[i].position[1] + matter[i].radius) - (matter[j].position[1] + matter[j].radius)),2);
-//            std::cout << dist << " " << matter[i].radius*pixelLength+matter[j].radius*pixelLength << " for " << &matter[i] << " and " << &matter[j] << "\n";
-//
-//            if (dist < (matter[i].radius)+(matter[j].radius) && matter[i].mass > matter[j].mass)
-//            {
-//                std::cout << "COLLISION\n";
-//                momentumCollision(matter[j], matter[i], j, false);
-//            }
-//        }
-//    }
     for (int i = 0; i<matter.size(); i++)
     {
-        // Collision detection was going to be CCD but that seemed too expensive so it draws a line between frames and checks for collision
-        // using this formula: https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm which I very
-        // much do not understand — parametric equations confuse me! However, the code segment provided in the answer allowed for a vague
-        // reconstruction of the algorithm. TODO: Learn how the derivation of this works and read up on some more linear algebra sometime!
-        Eigen::Vector2d direction = matter[i].position - matter[i].prevPosition;
         for (int j = 0; j<matter.size(); j++)
         {
-            Eigen::Vector2d radius {matter[j].radius*pixelLength, matter[j].radius*pixelLength};
-            Eigen::Vector2d center = matter[j].position + radius;
-            Eigen::Vector2d distance = matter[i].prevPosition - center;
-            double a = direction.dot(direction);
-            double b = 2 * (distance.dot(direction));
-            double c = (distance.dot(distance)) - (radius.dot(radius));
-            double discriminant = b*b-4*a*c;
-            if (discriminant < 0)
+            if (&matter[i] == &matter[j])
             {
                 continue;
             }
-            discriminant = sqrt(discriminant);
-            double t1 = (-b - discriminant)/(2*a);
-            double t2 = (-b + discriminant)/(2*a);
-            std::cout << t1 << " DISCRIMINANT THINGS " << t2 << std::endl;
-            if( t1 >= 0 && t1 <= 1 )
+            // Calculate closest point to matter[j] on vector of matter[i]
+            double a = matter[i].position[1] - matter[i].prevPosition[1];
+            double b = matter[i].position[0] - matter[i].prevPosition[0];
+            double c1 = (matter[i].prevPosition[1] - matter[i].position[1])*matter[i].position[0] + (matter[i].prevPosition[0] - matter[i].position[0])*matter[i].position[1];
+            double c2 = -b*matter[j].position[0] + a*matter[j].position[1];
+            double d = a*a + b*b;
+            double cx;
+            double cy;
+            if (d != 0)
             {
-                if (matter[i].mass > matter[j].mass)
-                {
-                    std::cout << matter[i].mass << " is obviously higher than " << matter[j].mass << " so YEET\n";
-                    removeMatter(j);
-                }
+                cx = (a*c1 - b*c2)/d;
+                cy = (a*c2 - b*c1)/d;
             }
-            if( t2 >= 0 && t2 <= 1 )
+            else
             {
-                if (matter[i].mass > matter[j].mass)
-                {
-                    std::cout << matter[i].mass << " is obviously higher than " << matter[j].mass << " so YEET\n";
-                    removeMatter(j);
-                }
+                cx = matter[j].position[0];
+                cy = matter[j].position[1];
+            }
+            // Calculate
+            double distSquared = pow(matter[j].position[0] - cx, 2) + pow(matter[j].position[1] - cy, 2);
+            std::cout << "coords: " << cx << " " << cy << std::endl;
+            std::cout << distSquared << " " << pow((matter[i].radius + matter[j].radius) * pixelLength, 2) << " for planets " << matter[i].mass << " and " << matter[j].mass << std::endl;
+            if (distSquared < pow(matter[i].radius + matter[j].radius, 2) && matter[j].mass > matter[i].mass)
+            {
+                removeMatter(i);
+                std::cout << "Collision!\n";
             }
         }
     }

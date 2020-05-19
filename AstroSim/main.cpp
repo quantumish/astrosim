@@ -38,30 +38,30 @@ int main(int, char const**)
     renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
     
     // stress test!
-    renderer.addMatter(pow(10,1), 1, {40000, 105000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 106000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 107000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 108000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 109000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 110000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 111000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 112000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 113000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 114000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 115000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 116000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 117000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 118000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 119000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 120000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 121000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 122000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 123000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 124000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 105000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 106000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 107000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 108000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 109000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 110000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 111000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 112000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 113000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 114000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 115000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 116000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 117000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 118000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 119000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 120000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 121000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 122000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 123000}, {-30,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 124000}, {-30,0});
 
     // "control" system that demonstrates that forces between other objects still work
-    renderer.addMatter(pow(10,17), 10, {200000, 120000}, {0,0});
-    renderer.addMatter(pow(10,1), 1, {200000, 110000}, {10,20});
+//    renderer.addMatter(pow(10,17), 10, {200000, 120000}, {0,0});
+//    renderer.addMatter(pow(10,1), 1, {200000, 110000}, {10,20});
     
     // show that collisions are a thing
     renderer.addMatter(pow(10,1), 1, {40000, 95000}, {0,0});
