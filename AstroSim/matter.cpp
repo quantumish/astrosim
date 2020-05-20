@@ -48,6 +48,14 @@ void Matter::updatePosition()
 {
     warn = false;
     prevPosition = position;
+//    history.push_back(position);
+//    std::cout << "INBOUND FOR " << mass << "\n";
+//    for (int i = 0; i < history.size(); i++)
+//    {
+//        Eigen::Vector2d v = history[i];
+//        std::cout << "[" << v[0]/pow(10,2) << ", " << v[1]/pow(10,2) << "], ";
+//    }
+//    std::cout << "\n";
     if (netForce.target != this)
     {
         PLOG_WARNING << "Net force belonging to matter does not have matter as its target.";
