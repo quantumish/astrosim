@@ -16,6 +16,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <SFML/Graphics.hpp>
+#include <plog/Log.h>
 
 #include "matter.hpp"
 #include "force.hpp"

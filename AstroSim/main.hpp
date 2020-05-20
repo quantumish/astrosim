@@ -11,6 +11,7 @@
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <plog/Log.h>
 
 // Here is a small helper for you! Have a look.
 #include "ResourcePath.hpp"

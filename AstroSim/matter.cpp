@@ -16,6 +16,7 @@ Matter::Matter(double massParam, double radiusParam, Eigen::Vector2d positionPar
     position = positionParam;
     velocity = velocityParam;
     shape.setRadius(radius);
+    warn = false;
 //    shape.setFillColor(sf::Color::Red);
     netForce.target = this;
 }
@@ -45,14 +46,15 @@ Matter::Matter(const Matter &src)
 
 void Matter::updatePosition()
 {
+    warn = false;
     prevPosition = position;
-//    std::cout << netForce.target << " VS " << this << std::endl;
-    netForce.target = this;
+    if (netForce.target != this)
+    {
+        PLOG_WARNING << "Net force belonging to matter does not have matter as its target.";
+        netForce.target = this;
+        warn = true;
+    }
     netForce.applyForce();
-//
-//    acceleration[0] = netForce.components[0]/mass;
-//    acceleration[1] = netForce.components[1]/mass;
-//        
     velocity[0] += acceleration[0];
     velocity[1] += acceleration[1];
     position[0] += velocity[0];

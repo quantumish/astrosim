@@ -14,13 +14,14 @@
 //
 
 #include <SFML/Graphics.hpp>
-
 // Here is a small helper for you! Have a look.
 #include "ResourcePath.hpp"
 #include "main.hpp"
 
-int main(int, char const**)
+int main(int, char const**, char* argv[])
 {
+    system("rm /Users/davfrei/AstroSim/logs/debug.txt");
+    plog::init(plog::info, "/Users/davfrei/AstroSim/logs/debug.txt", 5e+6, 1);
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
     
@@ -38,26 +39,26 @@ int main(int, char const**)
     renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
     
     // stress test!
-//    renderer.addMatter(pow(10,1), 1, {40000, 105000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 106000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 107000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 108000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 109000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 110000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 111000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 112000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 113000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 114000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 115000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 116000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 117000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 118000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 119000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 120000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 121000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 122000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 123000}, {-30,0});
-//    renderer.addMatter(pow(10,1), 1, {40000, 124000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 105000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 106000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 107000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 108000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 109000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 110000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 111000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 112000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 113000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 114000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 115000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 116000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 117000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 118000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 119000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 120000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 121000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 122000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 123000}, {-30,0});
+    renderer.addMatter(pow(10,1), 1, {40000, 124000}, {-30,0});
 
     // "control" system that demonstrates that forces between other objects still work
 //    renderer.addMatter(pow(10,17), 10, {200000, 120000}, {0,0});
@@ -87,6 +88,6 @@ int main(int, char const**)
         renderer.nextFrame();
         window.display();
     }
-    std::cout << "CLOSED EVENT RECEIEVED.\nError Count: " << renderer.errCount << " Warn Count: " << renderer.warnCount << std::endl;
+    PLOG_INFO << "CLOSED EVENT RECEIEVED. Error Count: " << renderer.errCount << " Warn Count: " << renderer.warnCount;
     return EXIT_SUCCESS;
 }

@@ -41,6 +41,8 @@ public:
     std::vector<std::array<double, 2>> history;
     Trajectory orbit;
     
+    bool warn;
+    
     sf::CircleShape shape;
     
     Matter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam);
