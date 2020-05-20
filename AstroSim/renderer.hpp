@@ -17,6 +17,9 @@
 #include <Eigen/Dense>
 #include <SFML/Graphics.hpp>
 #include <plog/Log.h>
+#include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_vector.h>
+
 
 #include "matter.hpp"
 #include "force.hpp"
@@ -47,7 +50,7 @@ public:
     
     void momentumCollision(Matter a, Matter b, int aIndex, bool elastic);
     
-    void findTrajectory(Matter matter);
+    void findOrbit(Matter matter);
     void checkCollisions();
     void traceObjects();
     void updateScene();

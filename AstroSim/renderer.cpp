@@ -101,23 +101,60 @@ void Renderer::removeMatter(int index)
 //    std::cout << "------END DIAGNOSIS------\n";
 //}
 
-void Renderer::findTrajectory(Matter matter)
+
+struct oparams
+{
+    double x1;
+    double y1;
+    double x2;
+    double y2;
+    double x3;
+    double y3;
+    double x4;  // very advanced algorithms
+    double y4;
+    double x5;
+    double y5;
+    double x6;
+    double y6;
+};
+
+int
+rosenbrock_f (const gsl_vector * x, void *params,
+              gsl_vector * f)
+{
+    double x1 = ((struct oparams *) params)->x1;
+    double y1 = ((struct oparams *) params)->y1;
+    double x2 = ((struct oparams *) params)->x2;
+    double y2 = ((struct oparams *) params)->y2;
+    double x3 = ((struct oparams *) params)->x3;
+    double y3 = ((struct oparams *) params)->y3;
+    double x4 = ((struct oparams *) params)->x4;
+    double y4 = ((struct oparams *) params)->y4;
+    double x5 = ((struct oparams *) params)->x5;
+    double y5 = ((struct oparams *) params)->y5;
+    double x6 = ((struct oparams *) params)->x6;
+    double y6 = ((struct oparams *) params)->y6;
+    
+    const double a0 = gsl_vector_get (x, 0);
+    const double a1 = gsl_vector_get (x, 1);
+    
+    const double b0 = a * (1 - x0);
+    const double b1 = b * (x1 - x0 * x0);
+    
+    gsl_vector_set (f, 0, y0);
+    gsl_vector_set (f, 1, y1);
+    
+    return GSL_SUCCESS;
+}
+
+void Renderer::findOrbit(Matter matter)
 {
     if (matter.history.size() >= 5)
     {
-        Eigen::MatrixXd points(6,6);
-        Eigen::MatrixXd answers(6,1);
-        for (int i = 0; i < 6; i++)
-        {
-            std::array<double,2> pos = matter.history[i];
-            points.row(i) << pow(pos[0],2), pos[0]*pos[1], pow(pos[1],2), pos[0], pos[1], 1;
-            answers.row(i) << pos[1];
-        }
-        PLOG_DEBUG << "Defined coefficients of orbit equations to be: " << points;
-        PLOG_DEBUG << "Defined answers to orbit equations: " << answers;
-        Eigen::MatrixXd unknowns (6,1);
-        unknowns = points.inverse() * answers;
-        PLOG_DEBUG << "Calculated unknowns in equations to be:" << unknowns;
+        const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrid;
+        gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 6);
+        
+
     }
 }
 
