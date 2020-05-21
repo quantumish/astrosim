@@ -34,30 +34,22 @@ void Renderer::addMatter(double massParam, double radiusParam, Eigen::Vector2d p
     matter.emplace_back(massParam, radiusParam, positionParam, velocityParam);
 }
 
+// O(n^2)
 void Renderer::initializeForces()
 {
     for (int i = 0; i < matter.size(); i++)
     {
         for (int j = 0; j < matter.size(); j++)
         {
-            if (&forces[j] == &forces[i])
-            {
-                continue;
-            }
-            std::array<double, 2> blank = {0,0}; // for some reason it only works if i initialize it first... type issues?
+            if (&forces[j] == &forces[i]) continue;
+            std::array<double, 2> blank = {0,0}; // Current explanation for why this exists is type declaration problems.
             PLOG_DEBUG << "Initializing force between " << &matter[j] << "(with mass " << matter[j].mass << ") and " << &matter[i] << "(with mass " << matter[i].mass << ")";
             forces.emplace_back(blank, matter[j], matter[i]);
             forces[forces.size()-1].updateGravity();
-            if (forces[forces.size()-1].warn == true)
-            {
-                warnCount += 1;
-            }
+            if (forces[forces.size()-1].warn == true) warnCount += 1;
             forces.emplace_back(blank, matter[i], matter[j]);
             forces[forces.size()-1].updateGravity();
-            if (forces[forces.size()-1].warn == true)
-            {
-                warnCount += 1;
-            }
+            if (forces[forces.size()-1].warn == true) warnCount += 1;
             forces[forces.size()-1].updateGravity();
         }
     }
@@ -102,60 +94,8 @@ void Renderer::removeMatter(int index)
 //}
 
 
-struct oparams
-{
-    double x1;
-    double y1;
-    double x2;
-    double y2;
-    double x3;
-    double y3;
-    double x4;  // very advanced algorithms
-    double y4;
-    double x5;
-    double y5;
-    double x6;
-    double y6;
-};
-
-int
-rosenbrock_f (const gsl_vector * x, void *params,
-              gsl_vector * f)
-{
-    double x1 = ((struct oparams *) params)->x1;
-    double y1 = ((struct oparams *) params)->y1;
-    double x2 = ((struct oparams *) params)->x2;
-    double y2 = ((struct oparams *) params)->y2;
-    double x3 = ((struct oparams *) params)->x3;
-    double y3 = ((struct oparams *) params)->y3;
-    double x4 = ((struct oparams *) params)->x4;
-    double y4 = ((struct oparams *) params)->y4;
-    double x5 = ((struct oparams *) params)->x5;
-    double y5 = ((struct oparams *) params)->y5;
-    double x6 = ((struct oparams *) params)->x6;
-    double y6 = ((struct oparams *) params)->y6;
-    
-    const double a0 = gsl_vector_get (x, 0);
-    const double a1 = gsl_vector_get (x, 1);
-    
-    const double b0 = a * (1 - x0);
-    const double b1 = b * (x1 - x0 * x0);
-    
-    gsl_vector_set (f, 0, y0);
-    gsl_vector_set (f, 1, y1);
-    
-    return GSL_SUCCESS;
-}
-
 void Renderer::findOrbit(Matter matter)
 {
-    if (matter.history.size() >= 5)
-    {
-        const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrid;
-        gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 6);
-        
-
-    }
 }
 
 void Renderer::traceObjects()
@@ -199,35 +139,48 @@ void Renderer::checkCollisions()
                 continue;
             }
             // Calculate closest point to matter[j] on vector of matter[i]
-            double a = matter[i].position[1] - matter[i].prevPosition[1];
-            double b = matter[i].position[0] - matter[i].prevPosition[0];
-            double c1 = (matter[i].prevPosition[1] - matter[i].position[1])*matter[i].position[0] + (matter[i].prevPosition[0] - matter[i].position[0])*matter[i].position[1];
-            double c2 = -b*matter[j].position[0] + a*matter[j].position[1];
+            double a = matter[j].prevPosition[1] - matter[j].position[1];
+            double b = matter[j].position[0] - matter[j].prevPosition[0];
+            if (a == 0 && b == 0)
+            {
+                PLOG_DEBUG << "Relative position for " << matter[j].mass << " is 0. Skipping.";
+                continue;
+            }
+//            PLOG_DEBUG << "Relative position for " << matter[j].mass << " calculated to be (" << a << ", " << b << ") from (" << matter[j].prevPosition[0] << ", " << matter[j].prevPosition[1] << ") - (" << matter[j].position[0] << ", " << matter[j].position[1] << ")";
+            double c1 = (matter[j].prevPosition[1] - matter[j].position[1])*matter[j].position[0] + (matter[j].position[0] - matter[j].prevPosition[0])*matter[j].position[1];
+            PLOG_DEBUG << "Determined formula for line segment to be " << a << "x + " << b << "x = " << c1;
+            double c2 = -b*matter[i].position[0] + a*matter[i].position[1];
             double d = a*a + b*b;
             double cx;
             double cy;
             if (d != 0)
             {
-                cx = (a*c1 - b*c2)/d;
-                cy = (a*c2 - b*c1)/d;
+                cx = ((a*c1 - b*c2)/d);
+                cy = ((a*c2 + b*c1)/d);
+                PLOG_DEBUG << "Determinant is not zero, found point at (" << cx << ", " << cy << ")";
             }
             else
             {
-                cx = matter[j].position[0];
-                cy = matter[j].position[1];
+                cx = matter[i].position[0];
+                cy = matter[i].position[1];
             }
             // Calculate
-            double distSquared = pow(matter[j].position[0] - cx, 2) + pow(matter[j].position[1] - cy, 2);
-            PLOG_DEBUG << "Closest point on vector calculated to be (" << cx << ", " << cy << ")";
-            PLOG_DEBUG << "Comparing dist^2 " << distSquared << " to " << pow((matter[i].radius + matter[j].radius) * pixelLength, 2) << " for planets " << matter[i].mass << " and " << matter[j].mass;
-            if (distSquared < pow(matter[i].radius + matter[j].radius, 2) && matter[j].mass > matter[i].mass)
+            double distSquared = pow(matter[i].position[0] - cx, 2) + pow(matter[i].position[1] - cy, 2);
+            PLOG_DEBUG << "Closest point on vector of "<< matter[j].mass << " calculated to be (" << cx << ", " << cy << ")";
+        
+            PLOG_DEBUG << "Comparing dist^2 " << distSquared << " to " << pow((matter[i].radius + matter[j].radius) * pixelLength, 2) << " for planets " << matter[j].mass << " and " << matter[i].mass;
+            if (distSquared < pow(matter[j].radius + matter[i].radius, 2) && matter[i].mass > matter[j].mass)
             {
-                removeMatter(i);
+//                removeMatter(j);
                 PLOG_INFO << "Collision!";
             }
         }
     }
-    
+}
+
+void Renderer::rayTrace()
+{
+
 }
 
 void Renderer::updateScene()
@@ -243,7 +196,7 @@ void Renderer::updateScene()
         {
             warnCount++;
         }
-        PLOG_DEBUG << "Calling method to apply force (" << forces[i].components[0] << ", " << forces[i].components[1] << ") between " << forces[i].target << " (with mass " << forces[i].target->mass << ") " << forces[i].source << " (with mass " << forces[i].source->mass << ")";
+        PLOG_VERBOSE << "Calling method to apply force (" << forces[i].components[0] << ", " << forces[i].components[1] << ") between " << forces[i].target << " (with mass " << forces[i].target->mass << ") " << forces[i].source << " (with mass " << forces[i].source->mass << ")";
         forces[i].target->netForce.components[0] += forces[i].components[0];
         forces[i].target->netForce.components[1] += forces[i].components[1];
     }
@@ -277,8 +230,9 @@ void Renderer::drawScene()
 void Renderer::nextFrame()
 {
     updateScene();
-    // diagnoseForces();
+//     diagnoseForces();
     checkCollisions();
     traceObjects();
     drawScene();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }

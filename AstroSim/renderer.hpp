@@ -13,13 +13,12 @@
 #include <array>
 #include <cmath>
 #include <vector>
+#include <chrono>
+#include <thread>
 #include <iostream>
 #include <Eigen/Dense>
 #include <SFML/Graphics.hpp>
 #include <plog/Log.h>
-#include <gsl/gsl_multiroots.h>
-#include <gsl/gsl_vector.h>
-
 
 #include "matter.hpp"
 #include "force.hpp"
@@ -48,6 +47,7 @@ public:
     
     void diagnoseForces();
     
+    
     void momentumCollision(Matter a, Matter b, int aIndex, bool elastic);
     
     void findOrbit(Matter matter);
@@ -55,6 +55,7 @@ public:
     void traceObjects();
     void updateScene();
     void drawScene();
+    void rayTrace();
     
     void nextFrame();
 };
