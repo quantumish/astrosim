@@ -21,6 +21,7 @@
 #include <plog/Log.h>
 
 #include "matter.hpp"
+#include "star.hpp"
 #include "force.hpp"
 
 class Renderer
@@ -37,6 +38,7 @@ public:
     int errCount = 0;
     
     std::vector<Matter> matter;
+    std::vector<Star> stars;
     std::vector<Force> forces;
     
     Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam);
@@ -51,11 +53,11 @@ public:
     void momentumCollision(Matter a, Matter b, int aIndex, bool elastic);
     
     void findOrbit(Matter matter);
-    void checkCollisions();
+    std::vector<double> checkCollisions(Eigen::Vector2d origin, Eigen::Vector2d direction, Eigen::Vector2d circleCenter, double circleRadius);
     void traceObjects();
     void updateScene();
     void drawScene();
-    void rayTrace();
+    void rayTrace(int rayCount);
     
     void nextFrame();
 };

@@ -128,59 +128,61 @@ void Renderer::momentumCollision(Matter a, Matter b, int aIndex, bool elastic)
 }
 
 // Code basically taken from https://ericleong.me/research/circle-circle and adapted some. TODO: Learn the linear algebra behind this!
-void Renderer::checkCollisions()
+std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vector2d direction, Eigen::Vector2d circleCenter, double circleRadius)
 {
-    for (int i = 0; i<matter.size(); i++)
+    double a = direction.dot(direction);
+    double b = 2 * origin.dot(direction) - 2 * direction.dot(circleCenter);
+    double c = origin.dot(origin) - pow(circleRadius,2) - (2 * origin.dot(circleCenter)) + circleCenter.dot(circleCenter);
+    double discriminant = pow(b,2) - 4*a*c;
+    std::vector<double> points;
+    if (discriminant >= 0)
     {
-        for (int j = 0; j<matter.size(); j++)
+        if (discriminant == 0)
         {
-            if (&matter[i] == &matter[j])
+            points.push_back(-b/(2*a));
+        }
+        else
+        {
+            points.push_back((-b + sqrt(discriminant))/(2*a));
+            points.push_back((b + sqrt(discriminant))/(2*a));
+        }
+    }
+    return points;
+}
+
+void Renderer::rayTrace(int rayCount)
+{
+    for (int i = 0; i < stars.size(); i++)
+    {
+        stars[i].rays = {};
+        std::cout << stars[i].rays.size() << " INIT SIZE\n";
+        // |P-C|^2 - R^2 = 0 or |O+tD-C|^2 - R^2 = 0 which can be simplified to
+        for (int rayNum = 0; rayNum < rayCount; rayNum++)
+        {
+            double pi = 3.14159265359;
+            Eigen::Vector2d origin = stars[i].position;
+            Eigen::Vector2d direction = {cos(rayNum * ((2 * pi)/rayCount)),sin(rayNum * ((2 * pi)/rayCount))};
+            for (int j = 0; j < matter.size(); j++)
             {
-                continue;
-            }
-            // Calculate closest point to matter[j] on vector of matter[i]
-            double a = matter[j].prevPosition[1] - matter[j].position[1];
-            double b = matter[j].position[0] - matter[j].prevPosition[0];
-            if (a == 0 && b == 0)
-            {
-                PLOG_DEBUG << "Relative position for " << matter[j].mass << " is 0. Skipping.";
-                continue;
-            }
-//            PLOG_DEBUG << "Relative position for " << matter[j].mass << " calculated to be (" << a << ", " << b << ") from (" << matter[j].prevPosition[0] << ", " << matter[j].prevPosition[1] << ") - (" << matter[j].position[0] << ", " << matter[j].position[1] << ")";
-            double c1 = (matter[j].prevPosition[1] - matter[j].position[1])*matter[j].position[0] + (matter[j].position[0] - matter[j].prevPosition[0])*matter[j].position[1];
-            PLOG_DEBUG << "Determined formula for line segment to be " << a << "x + " << b << "x = " << c1;
-            double c2 = -b*matter[i].position[0] + a*matter[i].position[1];
-            double d = a*a + b*b;
-            double cx;
-            double cy;
-            if (d != 0)
-            {
-                cx = ((a*c1 - b*c2)/d);
-                cy = ((a*c2 + b*c1)/d);
-                PLOG_DEBUG << "Determinant is not zero, found point at (" << cx << ", " << cy << ")";
-            }
-            else
-            {
-                cx = matter[i].position[0];
-                cy = matter[i].position[1];
-            }
-            // Calculate
-            double distSquared = pow(matter[i].position[0] - cx, 2) + pow(matter[i].position[1] - cy, 2);
-            PLOG_DEBUG << "Closest point on vector of "<< matter[j].mass << " calculated to be (" << cx << ", " << cy << ")";
-        
-            PLOG_DEBUG << "Comparing dist^2 " << distSquared << " to " << pow((matter[i].radius + matter[j].radius) * pixelLength, 2) << " for planets " << matter[j].mass << " and " << matter[i].mass;
-            if (distSquared < pow(matter[j].radius + matter[i].radius, 2) && matter[i].mass > matter[j].mass)
-            {
-//                removeMatter(j);
-                PLOG_INFO << "Collision!";
+                std::vector<double> points = checkCollisions(origin, direction, matter[j].position, matter[j].radius);
+                Eigen::Vector2d endpoint;
+                if (points.size() < 1)
+                {
+                    endpoint = origin + direction * pow(10,20);
+                }
+                else
+                {
+                    endpoint = origin + direction * points[0];
+                }
+//                std::cout <<
+                std::array<Eigen::Vector2d,2> path = {origin, endpoint};
+                std::cout << stars[i].rays.size() << " SIZE IN FUNC 1 \n";
+                stars[i].rays.push_back(path);
+                std::cout << stars[i].rays.size() << " SIZE IN FUNC 2 \n";
+
             }
         }
     }
-}
-
-void Renderer::rayTrace()
-{
-
 }
 
 void Renderer::updateScene()
@@ -224,15 +226,31 @@ void Renderer::drawScene()
         shape.setPosition(object.screenPosition[0]-object.radius, object.screenPosition[1]-object.radius);
         window->draw(shape);
     }
+    for (Star star : stars)
+    {
+        star.screenPosition = fixPosition(star.position);
+        sf::CircleShape shape (star.radius);
+        shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
+        window->draw(shape);
+        std::cout << star.rays.size() << " SIZE\n";
+        for (int i = 0; i <= star.rays.size(); i++)
+        {
+            Eigen::Vector2d start = fixPosition(star.rays[i][0]);
+            Eigen::Vector2d end = fixPosition(star.rays[i][1]);
+            sf::Vertex line[] = {sf::Vertex(sf::Vector2f((float) start[0], (float) start[1])), sf::Vertex(sf::Vector2f((float) end[0], (float) end[1]))};
+            std::cout << "drawing!" << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
+            window->draw(line, 2, sf::Lines);
+        }
+    }
 }
 
 
 void Renderer::nextFrame()
 {
     updateScene();
-//     diagnoseForces();
-    checkCollisions();
+    rayTrace(10);
+    //     diagnoseForces();
     traceObjects();
     drawScene();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
