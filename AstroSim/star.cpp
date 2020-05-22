@@ -7,3 +7,15 @@
 //
 
 #include "star.hpp"
+
+Star::Star(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam)
+{
+    mass = massParam;
+    radius = radiusParam;
+    position = positionParam;
+    velocity = velocityParam;
+    shape.setRadius(radius);
+    warn = false;
+    //    shape.setFillColor(sf::Color::Red);
+    netForce.target = this;
+}
