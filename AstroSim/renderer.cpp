@@ -157,26 +157,31 @@ void Renderer::rayTrace(int rayCount)
         stars[i].rays = {};
         std::cout << stars[i].rays.size() << " INIT SIZE\n";
         // |P-C|^2 - R^2 = 0 or |O+tD-C|^2 - R^2 = 0 which can be simplified to
-        for (int rayNum = 0; rayNum < rayCount+10; rayNum++)
+        for (int rayNum = 0; rayNum < rayCount; rayNum++)
         {
             double pi = 3.14159265359;
             Eigen::Vector2d origin = stars[i].position;
-            Eigen::Vector2d direction = {cos(rayNum * ((2 * pi)/rayCount)),sin(rayNum * ((2 * pi)/rayCount))};
-            std::cout << cos(rayNum * ((2 * pi)/rayCount)) << " " << sin(rayNum * ((2 * pi)/rayCount)) << " angle\n";
+            Eigen::Vector2d direction = {cos(rayNum * ((2 * pi)/(rayCount-1))),sin(rayNum * ((2 * pi)/(rayCount-1)))};
+            std::cout << rayNum * ((2 * pi)/(rayCount-1)) << " angle\n";
             Eigen::Vector2d endpoint;
             for (int j = 0; j < matter.size(); j++)
             {
                 std::vector<double> points = checkCollisions(origin, direction, matter[j].position, matter[j].radius);
-
+                double offscreen = 8 * pow(10,4);
                 if (points.size() < 1)
                 {
-                    endpoint = origin + (direction * pow(10,4));
+                    endpoint = origin + (direction * offscreen);
+                    std::cout << origin[0] << ", " << origin[1] << " + (" << direction[0] << ", "<< direction[1] << ") * pow(10,4) = (" << endpoint[0] << ", " << endpoint[1] << "\n";
                 }
                 else
                 {
                     endpoint = origin + direction * points[0];
+                    std::cout << origin[0] << ", " << origin[1] << " + (" << direction[0] << ", "<< direction[1] << ") * " << points[0] << " = (" << endpoint[0] << ", " << endpoint[1] << "\n";
+                    if (points[0] < 0)
+                    {
+                        endpoint = origin + (direction * offscreen);
+                    }
                 }
-//                std::cout <<
             }
             std::array<Eigen::Vector2d,2> path = {origin, endpoint};
             stars[i].rays.push_back(path);
@@ -254,7 +259,7 @@ void Renderer::drawScene()
 void Renderer::nextFrame()
 {
     updateScene();
-    rayTrace(10);
+    rayTrace(13);
     //     diagnoseForces();
     traceObjects();
     drawScene();
