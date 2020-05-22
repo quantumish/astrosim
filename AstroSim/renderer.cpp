@@ -127,13 +127,13 @@ void Renderer::momentumCollision(Matter a, Matter b, int aIndex, bool elastic)
     }
 }
 
-// Code basically taken from https://ericleong.me/research/circle-circle and adapted some. TODO: Learn the linear algebra behind this!
 std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vector2d direction, Eigen::Vector2d circleCenter, double circleRadius)
 {
-    double a = direction.dot(direction);
+    double a = 1;//direction.dot(direction);
     double b = 2 * origin.dot(direction) - 2 * direction.dot(circleCenter);
     double c = origin.dot(origin) - pow(circleRadius,2) - (2 * origin.dot(circleCenter)) + circleCenter.dot(circleCenter);
     double discriminant = pow(b,2) - 4*a*c;
+    std::cout << discriminant << " is discriminant\n";
     std::vector<double> points;
     if (discriminant >= 0)
     {
@@ -145,6 +145,15 @@ std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vec
         {
             points.push_back((-b + sqrt(discriminant))/(2*a));
             points.push_back((b + sqrt(discriminant))/(2*a));
+        }
+    }
+    if (points.size() > 1)
+    {
+        if (points[0] > points[1])
+        {
+            double old = points[0];
+            points[0] = points[1];
+            points[1] = old;
         }
     }
     return points;
@@ -167,7 +176,7 @@ void Renderer::rayTrace(int rayCount)
             for (int j = 0; j < matter.size(); j++)
             {
                 std::vector<double> points = checkCollisions(origin, direction, matter[j].position, matter[j].radius);
-                double offscreen = 8 * pow(10,4);
+                double offscreen = 5 * pow(10,4);
                 if (points.size() < 1)
                 {
                     endpoint = origin + (direction * offscreen);
@@ -175,12 +184,26 @@ void Renderer::rayTrace(int rayCount)
                 }
                 else
                 {
-                    endpoint = origin + direction * points[0];
-                    std::cout << origin[0] << ", " << origin[1] << " + (" << direction[0] << ", "<< direction[1] << ") * " << points[0] << " = (" << endpoint[0] << ", " << endpoint[1] << "\n";
-                    if (points[0] < 0)
+                    if (points.size() > 1)
                     {
-                        endpoint = origin + (direction * offscreen);
+                        if (points[0] > points[1]) std::swap(points[0], points[1]);
+                        endpoint = origin + (direction * points[0]);
+                        if (points[0] < 0) {
+                            points[0] = points[1];
+                            endpoint = origin + (direction * points[0]);
+                            if (points[0] < 0) endpoint = origin + (direction * offscreen);
+                        }
                     }
+                    else
+                    {
+                        if (points[0] < 0)
+                        {
+                            endpoint = origin + (direction * offscreen);
+                        }
+                        endpoint = origin + (direction * points[0]);
+                    }
+                
+                    std::cout << origin[0] << ", " << origin[1] << " + (" << direction[0] << ", "<< direction[1] << ") * " << points[0] << " = (" << endpoint[0] << ", " << endpoint[1] << "\n";
                 }
             }
             std::array<Eigen::Vector2d,2> path = {origin, endpoint};
@@ -231,17 +254,17 @@ void Renderer::drawScene()
     window->draw(backgroundSprite);
     for (Matter object : matter)
     {
-//        object.screenPosition = fixPosition(object.position);
-//        sf::CircleShape shape (object.radius);
-//        shape.setPosition(object.screenPosition[0]-object.radius, object.screenPosition[1]-object.radius);
-//        window->draw(shape);
+        object.screenPosition = fixPosition(object.position);
+        sf::CircleShape shape (object.radius);
+        shape.setPosition(object.screenPosition[0]-object.radius, object.screenPosition[1]-object.radius);
+        window->draw(shape);
     }
     for (Star star : stars)
     {
-//        star.screenPosition = fixPosition(star.position);
-//        sf::CircleShape shape (star.radius);
-//        shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
-//        window->draw(shape);
+        star.screenPosition = fixPosition(star.position);
+        sf::CircleShape shape (star.radius);
+        shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
+        window->draw(shape);
         std::cout << star.rays.size() << " SIZE\n";
         for (int i = 0; i <= star.rays.size(); i++)
         {
