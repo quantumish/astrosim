@@ -157,30 +157,35 @@ void Renderer::rayTrace(int rayCount)
         stars[i].rays = {};
         std::cout << stars[i].rays.size() << " INIT SIZE\n";
         // |P-C|^2 - R^2 = 0 or |O+tD-C|^2 - R^2 = 0 which can be simplified to
-        for (int rayNum = 0; rayNum < rayCount; rayNum++)
+        for (int rayNum = 0; rayNum < rayCount+10; rayNum++)
         {
             double pi = 3.14159265359;
             Eigen::Vector2d origin = stars[i].position;
             Eigen::Vector2d direction = {cos(rayNum * ((2 * pi)/rayCount)),sin(rayNum * ((2 * pi)/rayCount))};
+            std::cout << cos(rayNum * ((2 * pi)/rayCount)) << " " << sin(rayNum * ((2 * pi)/rayCount)) << " angle\n";
+            Eigen::Vector2d endpoint;
             for (int j = 0; j < matter.size(); j++)
             {
                 std::vector<double> points = checkCollisions(origin, direction, matter[j].position, matter[j].radius);
-                Eigen::Vector2d endpoint;
+
                 if (points.size() < 1)
                 {
-                    endpoint = origin + direction * pow(10,20);
+                    endpoint = origin + (direction * pow(10,4));
                 }
                 else
                 {
                     endpoint = origin + direction * points[0];
                 }
 //                std::cout <<
-                std::array<Eigen::Vector2d,2> path = {origin, endpoint};
-                std::cout << stars[i].rays.size() << " SIZE IN FUNC 1 \n";
-                stars[i].rays.push_back(path);
-                std::cout << stars[i].rays.size() << " SIZE IN FUNC 2 \n";
-
             }
+            std::array<Eigen::Vector2d,2> path = {origin, endpoint};
+            stars[i].rays.push_back(path);
+        }
+        for (int k = 0; k < stars[i].rays.size(); k++)
+        {
+            Eigen::Vector2d start = fixPosition(stars[i].rays[k][0]);
+            Eigen::Vector2d end = fixPosition(stars[i].rays[k][1]);
+            std::cout << "drawing (in func) " << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
         }
     }
 }
@@ -221,24 +226,25 @@ void Renderer::drawScene()
     window->draw(backgroundSprite);
     for (Matter object : matter)
     {
-        object.screenPosition = fixPosition(object.position);
-        sf::CircleShape shape (object.radius);
-        shape.setPosition(object.screenPosition[0]-object.radius, object.screenPosition[1]-object.radius);
-        window->draw(shape);
+//        object.screenPosition = fixPosition(object.position);
+//        sf::CircleShape shape (object.radius);
+//        shape.setPosition(object.screenPosition[0]-object.radius, object.screenPosition[1]-object.radius);
+//        window->draw(shape);
     }
     for (Star star : stars)
     {
-        star.screenPosition = fixPosition(star.position);
-        sf::CircleShape shape (star.radius);
-        shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
-        window->draw(shape);
+//        star.screenPosition = fixPosition(star.position);
+//        sf::CircleShape shape (star.radius);
+//        shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
+//        window->draw(shape);
         std::cout << star.rays.size() << " SIZE\n";
         for (int i = 0; i <= star.rays.size(); i++)
         {
+            std::cout << "should draw " << star.rays[i][0][0] << " " << star.rays[i][0][1] << " and " << star.rays[i][1][0] << " " << star.rays[i][1][1] << "\n";
             Eigen::Vector2d start = fixPosition(star.rays[i][0]);
             Eigen::Vector2d end = fixPosition(star.rays[i][1]);
             sf::Vertex line[] = {sf::Vertex(sf::Vector2f((float) start[0], (float) start[1])), sf::Vertex(sf::Vector2f((float) end[0], (float) end[1]))};
-            std::cout << "drawing!" << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
+            std::cout << "drawing " << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
             window->draw(line, 2, sf::Lines);
         }
     }
