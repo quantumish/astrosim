@@ -129,9 +129,10 @@ void Renderer::momentumCollision(Matter a, Matter b, int aIndex, bool elastic)
 
 std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vector2d direction, Eigen::Vector2d circleCenter, double circleRadius)
 {
-    double a = 1;//direction.dot(direction);
-    double b = 2 * origin.dot(direction) - 2 * direction.dot(circleCenter);
-    double c = origin.dot(origin) - pow(circleRadius,2) - (2 * origin.dot(circleCenter)) + circleCenter.dot(circleCenter);
+    Eigen::Vector2d L = (origin-circleCenter);
+    double a = direction.dot(direction);
+    double b = 2 * direction.dot(L); //origin.dot(direction) - 2 * direction.dot(circleCenter);
+    double c = L.dot(L) - pow(circleRadius*pixelLength,2); //origin.dot(origin) - pow(circleRadius,2) - (2 * origin.dot(circleCenter)) + circleCenter.dot(circleCenter);
     double discriminant = pow(b,2) - 4*a*c;
     std::cout << discriminant << " is discriminant\n";
     std::vector<double> points;
@@ -143,17 +144,15 @@ std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vec
         }
         else
         {
+//            double q = (b > 0) ?
+//            -0.5 * (b + sqrt(discriminant)) :
+//            -0.5 * (b - sqrt(discriminant));
+//            double t0 = q / a;
+//            double t1 = c / q;
+//            points.push_back(t0);
+//            points.push_back(t1);
             points.push_back((-b + sqrt(discriminant))/(2*a));
             points.push_back((b + sqrt(discriminant))/(2*a));
-        }
-    }
-    if (points.size() > 1)
-    {
-        if (points[0] > points[1])
-        {
-            double old = points[0];
-            points[0] = points[1];
-            points[1] = old;
         }
     }
     return points;
@@ -170,12 +169,18 @@ void Renderer::rayTrace(int rayCount)
         {
             double pi = 3.14159265359;
             Eigen::Vector2d origin = stars[i].position;
-            Eigen::Vector2d direction = {cos(rayNum * ((2 * pi)/(rayCount-1))),sin(rayNum * ((2 * pi)/(rayCount-1)))};
-            std::cout << rayNum * ((2 * pi)/(rayCount-1)) << " angle\n";
+            double angle = rayNum * ((2 * pi)/(rayCount-1));
+            Eigen::Vector2d direction = {cos(angle),sin(angle)};
+//            std::cout << rayNum * ((2 * pi)/(rayCount-1)) << " angle\n";
             Eigen::Vector2d endpoint;
             for (int j = 0; j < matter.size(); j++)
             {
                 std::vector<double> points = checkCollisions(origin, direction, matter[j].position, matter[j].radius);
+                for (double point : points)
+                {
+                    std::cout << point << " ";
+                }
+//                std::cout << "for angle " << angle << "\n";
                 double offscreen = 5 * pow(10,4);
                 if (points.size() < 1)
                 {
@@ -184,25 +189,11 @@ void Renderer::rayTrace(int rayCount)
                 }
                 else
                 {
-                    if (points.size() > 1)
+                    endpoint = origin + (direction * points[0]);
+                    if (points[0] < 0)
                     {
-                        if (points[0] > points[1]) std::swap(points[0], points[1]);
-                        endpoint = origin + (direction * points[0]);
-                        if (points[0] < 0) {
-                            points[0] = points[1];
-                            endpoint = origin + (direction * points[0]);
-                            if (points[0] < 0) endpoint = origin + (direction * offscreen);
-                        }
+                        endpoint = origin + (direction * offscreen);
                     }
-                    else
-                    {
-                        if (points[0] < 0)
-                        {
-                            endpoint = origin + (direction * offscreen);
-                        }
-                        endpoint = origin + (direction * points[0]);
-                    }
-                
                     std::cout << origin[0] << ", " << origin[1] << " + (" << direction[0] << ", "<< direction[1] << ") * " << points[0] << " = (" << endpoint[0] << ", " << endpoint[1] << "\n";
                 }
             }
@@ -282,7 +273,7 @@ void Renderer::drawScene()
 void Renderer::nextFrame()
 {
     updateScene();
-    rayTrace(13);
+    rayTrace(1001);
     //     diagnoseForces();
     traceObjects();
     drawScene();
