@@ -193,12 +193,29 @@ void Renderer::rayTrace(int rayCount)
                     if (points[0] < 0)
                     {
                         endpoint = origin + (direction * offscreen);
+                        std::cout << endpoint.norm() << " wefp\n";
                     }
                     std::cout << origin[0] << ", " << origin[1] << " + (" << direction[0] << ", "<< direction[1] << ") * " << points[0] << " = (" << endpoint[0] << ", " << endpoint[1] << "\n";
                 }
+                std::array<Eigen::Vector2d,2> path = {origin, endpoint};
+                std::cout << origin << "origin\n";
+                if (j > 0)
+                {
+                    double newMagnitudeSq = pow(endpoint[0]-origin[0],2)+pow(endpoint[1]-origin[1],2);
+                    double currentMagnitudeSq = pow(stars[i].rays[rayNum][1][0]-stars[i].rays[rayNum][0][0],2)+pow(stars[i].rays[rayNum][1][1]-stars[i].rays[rayNum][0][1],2);
+                    std::cout << newMagnitudeSq << " " << currentMagnitudeSq << "comparing\n";
+                    if (newMagnitudeSq < currentMagnitudeSq)
+                    {
+                        stars[i].rays[rayNum] = path;
+                    }
+                }
+                else
+                {
+                    stars[i].rays.push_back(path);
+                }
+                
             }
-            std::array<Eigen::Vector2d,2> path = {origin, endpoint};
-            stars[i].rays.push_back(path);
+           
         }
         for (int k = 0; k < stars[i].rays.size(); k++)
         {
