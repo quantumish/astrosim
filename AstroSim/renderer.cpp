@@ -287,7 +287,8 @@ void Renderer::drawScene()
 //            std::cout << "drawing " << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
 //            window->draw(line, 2, sf::Lines);
             light.setPoint(i, sf::Vector2f((float) end[0], (float) end[1]));
-            light.setFillColor(sf::Color(255,255,255,100));
+            light.setFillColor(sf::Color::Transparent);
+
         }
         window->draw(light);
 
@@ -299,6 +300,25 @@ void Renderer::nextFrame()
 {
     updateScene();
     rayTrace(1001);
+    for (int i = 0; i < matter.size(); i++)
+    {
+        for (int j = 0; j < matter.size(); j++)
+        {
+            if (&matter[i] == &matter[j])
+            {
+                continue;
+            }
+            Eigen::Vector2d radius = {matter[j].radius, matter[j].radius};
+            std::vector<double> points = checkCollisions(matter[i].position, matter[i].velocity, matter[j].position+radius, matter[j].radius);
+            if (points.size() > 0)
+            {
+                if (points[0] > 0 && points[0] <= 1)
+                {
+                    removeMatter(i);
+                }
+            }
+        }
+    }
     //     diagnoseForces();
     traceObjects();
     drawScene();
