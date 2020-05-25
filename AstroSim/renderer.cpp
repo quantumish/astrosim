@@ -300,24 +300,28 @@ void Renderer::nextFrame()
 {
     updateScene();
     rayTrace(1001);
-    for (int i = 0; i < matter.size(); i++)
+//    for (int i = 0; i < matter.size(); i++)
+//    {
+//        for (int j = 0; j < matter.size(); j++)
+//        {
+//            if (&matter[i] == &matter[j])
+//            {
+//                continue;
+//            }
+//            Eigen::Vector2d radius = {matter[j].radius, matter[j].radius};
+//            std::vector<double> points = checkCollisions(matter[i].position, matter[i].velocity, matter[j].position+radius, matter[j].radius);
+//            if (points.size() > 0)
+//            {
+//                if (points[0] > 0 && points[0] <= 1)
+//                {
+//                    removeMatter(i);
+//                }
+//            }
+//        }
+//    }
+    for (Observer observer : observers)
     {
-        for (int j = 0; j < matter.size(); j++)
-        {
-            if (&matter[i] == &matter[j])
-            {
-                continue;
-            }
-            Eigen::Vector2d radius = {matter[j].radius, matter[j].radius};
-            std::vector<double> points = checkCollisions(matter[i].position, matter[i].velocity, matter[j].position+radius, matter[j].radius);
-            if (points.size() > 0)
-            {
-                if (points[0] > 0 && points[0] <= 1)
-                {
-                    removeMatter(i);
-                }
-            }
-        }
+        observer.observePlanet();
     }
     //     diagnoseForces();
     traceObjects();
