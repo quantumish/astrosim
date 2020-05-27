@@ -28,10 +28,10 @@ public:
     std::vector<Eigen::Vector2d> history;
     Trajectory orbit;
     
-    std::vector<std::array<Eigen::Vector2d,2>> rays;
+    std::vector<Eigen::Vector2d> rays;
     double luminosity;
     
-    Star(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam);
+    Star(double massParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double radiusParam = 0, double luminosityParam = 0);
 };
 
 #endif /* star_hpp */
