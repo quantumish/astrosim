@@ -34,6 +34,18 @@ void Renderer::addMatter(double massParam, double radiusParam, Eigen::Vector2d p
     matter.emplace_back(massParam, radiusParam, positionParam, velocityParam);
 }
 
+void Renderer::addStar(double massParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double radiusParam, double luminosityParam)
+{
+    matter.emplace_back(massParam, radiusParam, positionParam, velocityParam);
+    stars.emplace_back(massParam, positionParam, velocityParam, radiusParam, luminosityParam);
+}
+
+void Renderer::addRocket(double massParam, Eigen::Vector2d dimensionsParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double deltaMParam, double exhaustVParam)
+{
+    matter.emplace_back(massParam, 0, positionParam, velocityParam);
+    rockets.emplace_back(massParam, dimensionsParam, positionParam, velocityParam, deltaMParam, exhaustVParam);
+}
+
 // O(n^2)
 void Renderer::initializeForces()
 {
@@ -66,33 +78,6 @@ void Renderer::removeMatter(int index)
     }
     matter.erase(matter.begin()+index);
 }
-
-//void Renderer::diagnoseForces()
-//{
-//    std::cout << "------BEGIN DIAGNOSIS FOR SIZE " << forces.size() << "------\n";
-//    for (int i = 0; i < matter.size(); i++)
-//    {
-//        std::cout << &matter[i] << "(" << matter[i].mass << "): \n";
-//        std::cout << "\tFORCES IN: \n";
-//        for (int j = 0; j < forces.size(); j++)
-//        {
-//            if (&matter[i] == forces[j].target)
-//            {
-//                std::cout << "\t\t" << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << forces[j].components[0] << " " << forces[j].components[1] << std::endl;
-//            }
-//        }
-//        std::cout << "\tFORCES OUT: \n";
-//        for (int j = 0; j < forces.size(); j++)
-//        {
-//            if (&matter[i] == forces[j].source)
-//            {
-//                std::cout << "\t\t" << forces[j].source << "(" << forces[j].source->mass << ") " << forces[j].target << "(" << forces[j].target->mass << ") " << forces[j].components[0] << " " << forces[j].components[1] << std::endl;
-//            }
-//        }
-//    }
-//    std::cout << "------END DIAGNOSIS------\n";
-//}
-
 
 void Renderer::findOrbit(Matter matter)
 {
@@ -134,7 +119,6 @@ std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vec
     double b = 2 * direction.dot(L); //origin.dot(direction) - 2 * direction.dot(circleCenter);
     double c = L.dot(L) - pow(circleRadius*pixelLength,2); //origin.dot(origin) - pow(circleRadius,2) - (2 * origin.dot(circleCenter)) + circleCenter.dot(circleCenter);
     double discriminant = pow(b,2) - 4*a*c;
-    std::cout << discriminant << " is discriminant\n";
     std::vector<double> points;
     if (discriminant >= 0)
     {
@@ -144,29 +128,10 @@ std::vector<double> Renderer::checkCollisions(Eigen::Vector2d origin, Eigen::Vec
         }
         else
         {
-//            double q = (b > 0) ?
-//            -0.5 * (b + sqrt(discriminant)) :
-//            -0.5 * (b - sqrt(discriminant));
-//            double t0 = q / a;
-//            double t1 = c / q;
-//            points.push_back(t0);
-//            points.push_back(t1);
             points.push_back((-b + sqrt(discriminant))/(2*a));
             points.push_back((b + sqrt(discriminant))/(2*a));
         }
     }
-//    if (points.size()>1)
-//    {
-//        if (points[0] > points[1]) std::swap(points[0], points[1]);
-//
-//        if (points[0] < 0) {
-//            points[0] = points[1];
-//            if (points[0] < 0){
-//                points.erase(points.begin());
-//                points.erase(points.begin()+1);
-//            }
-//        }
-//    }
     return points;
 }
 
@@ -175,7 +140,6 @@ void Renderer::rayTrace(int rayCount)
     for (int i = 0; i < stars.size(); i++)
     {
         stars[i].rays = {};
-        std::cout << stars[i].rays.size() << " INIT SIZE\n";
         // |P-C|^2 - R^2 = 0 or |O+tD-C|^2 - R^2 = 0 which can be simplified to
         for (int rayNum = 0; rayNum < rayCount; rayNum++)
         {
@@ -183,17 +147,13 @@ void Renderer::rayTrace(int rayCount)
             Eigen::Vector2d origin = stars[i].position;
             double angle = rayNum * ((2 * pi)/(rayCount-1));
             Eigen::Vector2d direction = {cos(angle),sin(angle)};
-//            std::cout << rayNum * ((2 * pi)/(rayCount-1)) << " angle\n";
             Eigen::Vector2d endpoint;
             for (int j = 0; j < matter.size(); j++)
             {
                 std::vector<double> points = checkCollisions(origin, direction, matter[j].position, matter[j].radius);
                 double offscreen = 5 * pow(10,4);
-                if (points.size() < 1)
-                {
-                    endpoint = origin + (direction * offscreen);
-                }
-                else
+                endpoint = origin + (direction * offscreen);
+                if (points.size() >= 1 && matter[j].mass != stars[i].mass)
                 {
                     endpoint = origin + (direction * points[0]);
                     if (points[0] < 0)
@@ -214,16 +174,8 @@ void Renderer::rayTrace(int rayCount)
                 {
                     stars[i].rays.push_back(endpoint);
                 }
-                
             }
-           
         }
-//        for (int k = 0; k < stars[i].rays.size(); k++)
-//        {
-////            Eigen::Vector2d start = fixPosition(stars[i].rays[k][0]);
-//            Eigen::Vector2d end = fixPosition(stars[i].rays[k]);
-////            std::cout << "drawing (in func) " << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
-//        }
     }
 }
 
@@ -255,7 +207,6 @@ void Renderer::updateScene()
     for (Rocket rocket : rockets)
     {
         rocket.updatePosition();
-        std::cout << rocket.position;
     }
 }
 
@@ -280,7 +231,6 @@ void Renderer::drawScene()
         sf::CircleShape shape (star.radius);
         shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
         window->draw(shape);
-        std::cout << star.rays.size() << " SIZE\n";
         sf::ConvexShape light;
         light.setPointCount(star.rays.size());
         for (int i = 0; i <= star.rays.size(); i++)
@@ -290,8 +240,7 @@ void Renderer::drawScene()
 //            sf::Vertex line[] = {sf::Vertex(sf::Vector2f((float) start[0], (float) start[1])), sf::Vertex(sf::Vector2f((float) end[0], (float) end[1]))};
 //            window->draw(line, 2, sf::Lines);
             light.setPoint(i, sf::Vector2f((float) end[0], (float) end[1]));
-            light.setFillColor(sf::Color::Transparent);
-
+            light.setFillColor(sf::Color(255,255,255,100));
         }
         window->draw(light);
     }
@@ -309,25 +258,6 @@ void Renderer::nextFrame()
 {
     updateScene();
     rayTrace(1001);
-//    for (int i = 0; i < matter.size(); i++)
-//    {
-//        for (int j = 0; j < matter.size(); j++)
-//        {
-//            if (&matter[i] == &matter[j])
-//            {
-//                continue;
-//            }
-//            Eigen::Vector2d radius = {matter[j].radius, matter[j].radius};
-//            std::vector<double> points = checkCollisions(matter[i].position, matter[i].velocity, matter[j].position+radius, matter[j].radius);
-//            if (points.size() > 0)
-//            {
-//                if (points[0] > 0 && points[0] <= 1)
-//                {
-//                    removeMatter(i);
-//                }
-//            }
-//        }
-//    }
     traceObjects();
     drawScene();
     std::this_thread::sleep_for(std::chrono::milliseconds(speed));

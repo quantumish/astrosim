@@ -49,11 +49,10 @@ public:
     Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam);
     Eigen::Vector2d fixPosition(Eigen::Vector2d coordinates);
     void addMatter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam);
+    void addStar(double massParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double radiusParam = 0, double luminosityParam = 0);
+    void addRocket(double massParam, Eigen::Vector2d dimensionsParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double deltaMParam, double exhaustVParam);
     void removeMatter(int index);
     void initializeForces();
-    
-    void diagnoseForces();
-    
     
     void momentumCollision(Matter a, Matter b, int aIndex, bool elastic);
     

@@ -18,10 +18,11 @@
 #include "ResourcePath.hpp"
 #include "main.hpp"
 
+
 int main(int, char const**, char* argv[])
 {
     system("rm /Users/davfrei/AstroSim/logs/debug.txt");
-    plog::init(plog::info, "/Users/davfrei/AstroSim/logs/debug.txt", 5e+6, 1);
+    plog::init(plog::debug, "/Users/davfrei/AstroSim/logs/debug.txt", 5e+6, 1);
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
     
@@ -36,36 +37,23 @@ int main(int, char const**, char* argv[])
     
     sf::RenderWindow * windowPointer = &window;
     Renderer renderer(0, windowPointer, pow(10, 2));
-    renderer.addMatter(pow(10,18), 11, {40000, 100000}, {0,0});
+//    Rocket rocket (pow(10,6), {10,30}, {45000, 100000}, {2000,0}, 10000, 1000);
+//    renderer.rockets.push_back(rocket);
+//    renderer.addMatter(pow(10,18), 11, {40000, 100100}, {0,5});
+//    renderer.addMatter(pow(10,10), 2, {45000, 100000}, {20,0});
+    renderer.addStar(pow(10,20), {60000, 100000}, {0,0}, 20);
     
     // stress test!
-    renderer.addMatter(pow(10,1), 1, {40000, 105000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 106000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 107000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 108000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 109000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 110000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 111000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 112000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 113000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 114000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 115000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 116000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 117000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 118000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 119000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 120000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 121000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 122000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 123000}, {-30,0});
-    renderer.addMatter(pow(10,1), 1, {40000, 124000}, {-30,0});
+    renderer.addMatter(pow(10,1), 3, {60000, 125000}, {-800,0});
+    renderer.addMatter(pow(10,1), 5, {60000, 116000}, {-700,0});
+    renderer.addMatter(pow(10,1), 10, {60000, 115000}, {-1000,0});
 
     // "control" system that demonstrates that forces between other objects still work
 //    renderer.addMatter(pow(10,17), 10, {200000, 120000}, {0,0});
 //    renderer.addMatter(pow(10,1), 1, {200000, 110000}, {10,20});
     
     // show that collisions are a thing
-    renderer.addMatter(pow(10,1), 1, {40000, 95000}, {0,0});
+//    renderer.addMatter(pow(10,1), 1, {40000, 90000}, {0,40});
     
     renderer.initializeForces();
     while (window.isOpen())
