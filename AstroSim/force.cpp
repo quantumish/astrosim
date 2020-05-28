@@ -30,7 +30,7 @@ void Force::updateGravity()
     std::array<double, 2> distanceComponents = {source->position[0]-target->position[0], source->position[1]-target->position[1]};
     double distance = sqrt(pow(distanceComponents[0],2)+pow(distanceComponents[1],2));
     double magnitude = (source->mass * target->mass * universalGravitationalConstant)/pow(distance,2);
-    PLOG_DEBUG << "Calculating gravity: ( " << source->mass << " * " << target->mass << " * " << universalGravitationalConstant << " ) / " << pow(distance,2) << " = " << magnitude;
+    PLOG_VERBOSE << "Calculating gravity: ( " << source->mass << " * " << target->mass << " * " << universalGravitationalConstant << " ) / " << pow(distance,2) << " = " << magnitude;
     double pi = 3.14159265359;
     double direction;
     direction = atan2(distanceComponents[1], distanceComponents[0]);
@@ -49,6 +49,6 @@ void Force::updateGravity()
 void Force::applyForce()
 {
     target->acceleration[0] = components[0]/target->mass;
-    PLOG_DEBUG << "Appslying force: " << components[0] << " / " << target->mass << " = " << target->acceleration[0];
+    PLOG_VERBOSE << "Applying force: " << components[0] << " / " << target->mass << " = " << target->acceleration[0];
     target->acceleration[1] = components[1]/target->mass;
 }

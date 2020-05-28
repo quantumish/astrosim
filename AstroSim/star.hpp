@@ -32,6 +32,7 @@ public:
     double luminosity;
     
     Star(double massParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double radiusParam = 0, double luminosityParam = 0);
+    void updatePosition();
 };
 
 #endif /* star_hpp */
