@@ -23,6 +23,9 @@
 #include "matter.hpp"
 #include "star.hpp"
 #include "force.hpp"
+#include "observer.hpp"
+#include "rocket.hpp"
+
 
 class Renderer
 {
@@ -37,9 +40,11 @@ public:
     int warnCount = 0;
     int errCount = 0;
     
+    std::vector<Observer> observers;
     std::vector<Matter> matter;
     std::vector<Star> stars;
     std::vector<Force> forces;
+    std::vector<Rocket> rockets;
     
     Renderer(int speedParam, sf::RenderWindow * windowParam, int pixelParam);
     Eigen::Vector2d fixPosition(Eigen::Vector2d coordinates);

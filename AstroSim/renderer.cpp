@@ -252,6 +252,11 @@ void Renderer::updateScene()
             warnCount++;
         }
     }
+    for (Rocket rocket : rockets)
+    {
+        rocket.updatePosition();
+        std::cout << rocket.position;
+    }
 }
 
 void Renderer::drawScene()
@@ -280,18 +285,22 @@ void Renderer::drawScene()
         light.setPointCount(star.rays.size());
         for (int i = 0; i <= star.rays.size(); i++)
         {
-//            std::cout << "should draw " << star.rays[i][0][ << " " << star.rays[i][0][1] << " and " << star.rays[i][1][0] << " " << star.rays[i][1][1] << "\n";
             Eigen::Vector2d start = fixPosition(star.position);
             Eigen::Vector2d end = fixPosition(star.rays[i]);
 //            sf::Vertex line[] = {sf::Vertex(sf::Vector2f((float) start[0], (float) start[1])), sf::Vertex(sf::Vector2f((float) end[0], (float) end[1]))};
-//            std::cout << "drawing " << start[0] << " " << start[1] << " and " << end[0] << " " << end[1] << "\n";
 //            window->draw(line, 2, sf::Lines);
             light.setPoint(i, sf::Vector2f((float) end[0], (float) end[1]));
             light.setFillColor(sf::Color::Transparent);
 
         }
         window->draw(light);
-
+    }
+    for (Rocket rocket : rockets)
+    {
+        sf::RectangleShape rocketShape (sf::Vector2f((float) rocket.dimensions[0], (float) rocket.dimensions[1]));
+        Eigen::Vector2d rocketFixedPos = fixPosition(rocket.position);
+        rocketShape.setPosition(rocketFixedPos[0], rocketFixedPos[1]);
+        window->draw(rocketShape);
     }
 }
 
@@ -300,27 +309,26 @@ void Renderer::nextFrame()
 {
     updateScene();
     rayTrace(1001);
-    for (int i = 0; i < matter.size(); i++)
-    {
-        for (int j = 0; j < matter.size(); j++)
-        {
-            if (&matter[i] == &matter[j])
-            {
-                continue;
-            }
-            Eigen::Vector2d radius = {matter[j].radius, matter[j].radius};
-            std::vector<double> points = checkCollisions(matter[i].position, matter[i].velocity, matter[j].position+radius, matter[j].radius);
-            if (points.size() > 0)
-            {
-                if (points[0] > 0 && points[0] <= 1)
-                {
-                    removeMatter(i);
-                }
-            }
-        }
-    }
-    //     diagnoseForces();
+//    for (int i = 0; i < matter.size(); i++)
+//    {
+//        for (int j = 0; j < matter.size(); j++)
+//        {
+//            if (&matter[i] == &matter[j])
+//            {
+//                continue;
+//            }
+//            Eigen::Vector2d radius = {matter[j].radius, matter[j].radius};
+//            std::vector<double> points = checkCollisions(matter[i].position, matter[i].velocity, matter[j].position+radius, matter[j].radius);
+//            if (points.size() > 0)
+//            {
+//                if (points[0] > 0 && points[0] <= 1)
+//                {
+//                    removeMatter(i);
+//                }
+//            }
+//        }
+//    }
     traceObjects();
     drawScene();
-//    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(speed));
 }
