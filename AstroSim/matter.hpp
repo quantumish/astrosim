@@ -35,18 +35,14 @@ public:
     Eigen::Vector2d screenPosition;
     Eigen::Vector2d velocity;
     Eigen::Vector2d acceleration;
-    Eigen::Vector2d previousPosition;
-    Force netForce{};
     Eigen::Vector2d prevPosition;
-    std::vector<std::array<double, 2>> history;
+    Force netForce{};
+    std::vector<Eigen::Vector2d> history;
     Trajectory orbit;
     
     bool warn;
-    
-    sf::CircleShape shape;
-    
+        
     Matter(double massParam, double radiusParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam);
-    Matter(const Matter &src);
     void updatePosition();
     Matter();
 };

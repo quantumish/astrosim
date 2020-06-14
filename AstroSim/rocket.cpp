@@ -41,7 +41,9 @@ void Rocket::updatePosition()
     velocity[1] += deltaVComponents[1];
     velocity[0] += acceleration[0];
     velocity[1] += acceleration[1];
+    std::cout << "velocity " << velocity;
     position[0] += velocity[0];
     position[1] += velocity[1];
+    std::cout << "pos " << position;
     netForce.components = {0,0};
 }

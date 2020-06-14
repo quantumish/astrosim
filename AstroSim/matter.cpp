@@ -15,9 +15,7 @@ Matter::Matter(double massParam, double radiusParam, Eigen::Vector2d positionPar
     radius = radiusParam;
     position = positionParam;
     velocity = velocityParam;
-    shape.setRadius(radius);
     warn = false;
-//    shape.setFillColor(sf::Color::Red);
     netForce.target = this;
 }
 
@@ -27,35 +25,17 @@ Matter::Matter()
     radius = 1;
     position = {0,0};
     velocity = {0,0};
-    shape.setRadius(radius);
     netForce.target = this;
 }
 
-Matter::Matter(const Matter &src)
-{
-    mass = src.mass;
-    radius = src.radius;
-    position = src.position;
-    velocity = src.velocity;
-    acceleration = src.acceleration;
-    netForce = src.netForce;
-    history = src.history;
-    orbit = src.orbit;
-    shape = *(new sf::CircleShape (radius));
-}
 
 void Matter::updatePosition()
 {
     warn = false;
     prevPosition = position;
-//    history.push_back(position);
-//    std::cout << "INBOUND FOR " << mass << "\n";
-//    for (int i = 0; i < history.size(); i++)
-//    {
-//        Eigen::Vector2d v = history[i];
-//        std::cout << "[" << v[0]/pow(10,2) << ", " << v[1]/pow(10,2) << "], ";
-//    }
-//    std::cout << "\n";
+    PLOG_ERROR_IF(mass < 0) << "Mass of planet is NEGATIVE. This doesn't really make sense. This will cause errors.";
+    PLOG_ERROR_IF(radius < 0) << "Radius of planet is NEGATIVE. This isn't even explanable. This will cause errors.";
+
     if (netForce.target != this)
     {
         PLOG_WARNING << "Net force belonging to matter does not have matter as its target.";
