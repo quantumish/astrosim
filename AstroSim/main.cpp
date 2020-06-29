@@ -37,11 +37,9 @@ int main(int, char const**, char* argv[])
     
     sf::RenderWindow * windowPointer = &window;
     Renderer renderer(0, windowPointer, pow(10, 2));
-    Rocket rocket (pow(10,6), {10,30}, {45000, 100000}, {2000,0}, 10000, 1000);
-    renderer.rockets.push_back(rocket);
-//    renderer.addMatter(pow(10,18), 11, {40000, 100100}, {0,5});
-//    renderer.addMatter(pow(10,10), 2, {45000, 100000}, {20,0});
-//    renderer.addStar(pow(10,20), {60000, 100000}, {0,0}, 20);
+    // renderer.addMatter(pow(10,18), 11, {40000, 100100}, {0,5});
+    // renderer.addMatter(pow(10,10), 2, {45000, 100000}, {20,0});
+    // renderer.addStar(pow(10,20), {60000, 100000}, {0,0}, 20);
     
     // stress test!
 //    renderer.addMatter(pow(10,1), 3, {60000, 125000}, {-800,0});

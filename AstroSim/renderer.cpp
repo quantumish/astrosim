@@ -40,12 +40,6 @@ void Renderer::addStar(double massParam, Eigen::Vector2d positionParam, Eigen::V
     stars.emplace_back(massParam, positionParam, velocityParam, radiusParam, luminosityParam);
 }
 
-void Renderer::addRocket(double massParam, Eigen::Vector2d dimensionsParam, Eigen::Vector2d positionParam, Eigen::Vector2d velocityParam, double deltaMParam, double exhaustVParam)
-{
-    matter.emplace_back(massParam, 0, positionParam, velocityParam);
-    rockets.emplace_back(massParam, dimensionsParam, positionParam, velocityParam, deltaMParam, exhaustVParam);
-}
-
 // O(n^2)
 void Renderer::initializeForces()
 {
@@ -204,10 +198,6 @@ void Renderer::updateScene()
             warnCount++;
         }
     }
-    for (Rocket rocket : rockets)
-    {
-        rocket.updatePosition();
-    }
 }
 
 void Renderer::drawScene()
@@ -231,25 +221,6 @@ void Renderer::drawScene()
         sf::CircleShape shape (star.radius);
         shape.setPosition(star.screenPosition[0]-star.radius, star.screenPosition[1]-star.radius);
         window->draw(shape);
-        sf::ConvexShape light;
-        light.setPointCount(star.rays.size());
-        for (int i = 0; i <= star.rays.size(); i++)
-        {
-            Eigen::Vector2d start = fixPosition(star.position);
-            Eigen::Vector2d end = fixPosition(star.rays[i]);
-//            sf::Vertex line[] = {sf::Vertex(sf::Vector2f((float) start[0], (float) start[1])), sf::Vertex(sf::Vector2f((float) end[0], (float) end[1]))};
-//            window->draw(line, 2, sf::Lines);
-            light.setPoint(i, sf::Vector2f((float) end[0], (float) end[1]));
-            light.setFillColor(sf::Color(255,255,255,100));
-        }
-        window->draw(light);
-    }
-    for (Rocket rocket : rockets)
-    {
-        sf::RectangleShape rocketShape (sf::Vector2f((float) rocket.dimensions[0], (float) rocket.dimensions[1]));
-        Eigen::Vector2d rocketFixedPos = fixPosition(rocket.position);
-        rocketShape.setPosition(rocketFixedPos[0], rocketFixedPos[1]);
-        window->draw(rocketShape);
     }
 }
 
@@ -258,7 +229,7 @@ void Renderer::nextFrame()
 {
     updateScene();
     rayTrace(1001);
-    traceObjects();
+    //traceObjects();
     drawScene();
     std::this_thread::sleep_for(std::chrono::milliseconds(speed));
 }
