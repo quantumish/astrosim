@@ -32,7 +32,7 @@ Matter::Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::
 class Universe
 {
   std::vector<Matter> matter;
-  void update_matter(Matter obj);
+  void update_matter(Matter* obj);
 public:
   void add_matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
   void advance();
@@ -50,25 +50,25 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
   // TODO: Force stuff
 }
 
-void Universe::update_matter(Matter obj)
+void Universe::update_matter(Matter* obj)
 {
-  obj.position += obj.velocity;
-  std::cout << obj.position << "NEWPOS\n\n";
-  obj.velocity += obj.acceleration;
+  obj->position += obj->velocity;
+  //  std::cout << objposition << "\n\n";
+  obj->velocity += obj->acceleration;
 }
 
 void Universe::advance()
 {
   for (int i = 0; i < matter.size(); i++) {
-    update_matter(matter[i]);
+    update_matter(&matter[i]);
   }
-  std::cout << matter[0].position << "\n\n";
+  //  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
 }
 
 int main()
 {
   Universe scene{};
-  scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10,0}, {0,0,0});
+  scene.add_matter(7.34*pow(10,22), {0,0,0}, {1,0,0}, {1,0,0});
   for (int i = 0; i < 10; i++) {
     scene.advance();
   }
