@@ -1,4 +1,0 @@
-#+TITLE: AstroSim
-
-* About
-Astrosim is a fledgling astrophysical simulation program written in C++ for MacOS.
