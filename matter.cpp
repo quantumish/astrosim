@@ -166,7 +166,7 @@ void Universe::advance()
     forces[i].target->acceleration = forces[i].components / forces[i].target->mass;  // F = ma so F/m = a
     calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
   }
-  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
+  //  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
 }
 
 int main()
@@ -183,7 +183,13 @@ int main()
 
 PYBIND11_MODULE(astrosim, m) {
   m.doc() = "Simulate exoplanets with C++.";
- 
+
+  py::class_<Matter>(m, "Matter")
+    .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>>())
+    .def_readonly("position", &Matter::position)
+    .def_readonly("velocity", &Matter::velocity)
+    .def_readonly("acceleration", &Matter::acceleration);
+  
   py::class_<Universe>(m, "Universe")
     .def(py::init<>())
     .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"))
