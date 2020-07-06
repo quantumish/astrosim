@@ -14,7 +14,7 @@
 #define LIGHTSPEED 299792458
 
 // Constants relevant to the simulation
-#define LIGHT_FRAC (pow(10, -9)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_FRAC (pow(10, -57)) // Fraction of rays emitted from star to be simulated.
 
 class Matter
 {
@@ -65,37 +65,70 @@ class Photon
   Eigen::Vector3d position;
   Eigen::Vector3d direction; // Unit vector in correct direction
 public:
-  Photon();
+  Photon(Eigen::Vector3d x, Eigen::Vector3d d);
 };
 
-class Star : Matter
+Photon::Photon(Eigen::Vector3d x, Eigen::Vector3d d)
+{
+  position = x;
+  direction = d;
+}
+
+class Star : public Matter
 {
 public:
   double luminosity;
   
   Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
-  void emit_light();
+  std::vector<Photon> emit_light();
 };
 
-Star::Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
+Star::Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(m, x, v, a)
 {
+  luminosity = L;
 }
 
-void Star::emit_light()
+std::vector<Photon> Star::emit_light()
 {
-  int photons = LIGHT_FRAC * (luminosity / PLANCK_CONST);
+  std::vector<Photon> photons;
+  double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
+  std::cout << "NUM: " << num_photons << " = ("<< luminosity << " / " << PLANCK_CONST << ") * " << LIGHT_FRAC <<"\n";
+  std::cout << "\t" << (luminosity / PLANCK_CONST) << "\n\t" << LIGHT_FRAC * (luminosity / PLANCK_CONST) << "\n\t" << round(LIGHT_FRAC * (luminosity / PLANCK_CONST)) << "\n";
   // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
-  for (int i = 0; i < photons; i++) {
-    y = 1 - (i / float(samples - 1)) * 2  # y goes from 1 to -1
-      radius = math.sqrt(1 - y * y)  # radius at y
+  std::vector<double> x;
+  std::vector<double> y;
+  std::vector<double> z;
+  for (int i = 0; (double) i < num_photons; i++) {
+    Eigen::Vector3d point;
+    point[1] = 1 - (i / (float)(num_photons - 1)) * 2;
+    radius = sqrt(1 - point[1] * point[1]);
       
-      theta = phi * i  # golden angle increment
+    double theta = PHI * i;
       
-      x = math.cos(theta) * radius
-      z = math.sin(theta) * radius
+    point[0] = cos(theta) * radius;
+    point[2] = sin(theta) * radius;
+    x.emplace_back(point[0]);
+    y.emplace_back(point[1]);
+    z.emplace_back(point[2]);
       
-      points.append((x, y, z))
-      }
+    photons.emplace_back(position, point);
+  }
+  std::cout << "[";
+  for (int i = 0; i < x.size(); i++) {
+    std::cout << x[i] << ",";
+  }
+  std::cout << "]\n";
+  std::cout << "[";
+  for (int i = 0; i < y.size(); i++) {
+    std::cout << y[i] << ",";
+  }
+  std::cout << "]\n";
+  std::cout << "[";
+  for (int i = 0; i < z.size(); i++) {
+    std::cout << z[i] << ",";
+  }
+  std::cout << "]\n";
+  return photons;
 }
 
 class Universe
@@ -156,10 +189,12 @@ void Universe::advance()
 
 int main()
 {
-  Universe scene{};
-  scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10000,0}, {0,0,0});
-  scene.add_matter(7.34*pow(10,24), {100000,0,0}, {0,0,0}, {0,0,0});
-  for (int i = 0; i < 10; i++) {
-    scene.advance();
-  }
+  Star star (pow(10,30), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
+  star.emit_light();
+  // Universe scene{};
+  // scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10000,0}, {0,0,0});
+  // scene.add_matter(7.34*pow(10,24), {100000,0,0}, {0,0,0}, {0,0,0});
+  // for (int i = 0; i < 10; i++) {
+  //   scene.advance();
+  // }
 }
