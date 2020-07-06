@@ -43,6 +43,8 @@ public:
 
 Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
 {
+  target = end;
+  source = src;
   for (int i = 0; i < 3; i++) {
     components[i] = parts[i];
   }
@@ -79,8 +81,10 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
     std::cout << "Test?\n";
+    std::cout << &matter[matter.size()-1] << " " <<  &matter[i] << '\n';
     Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
     forces.push_back(grav1);
+    std::cout << grav1.target << " " <<  grav1.source << '\n';
     calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
     Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
     forces.push_back(grav2);
