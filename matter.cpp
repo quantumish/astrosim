@@ -4,8 +4,17 @@
 #include <cmath>
 #include <Eigen/Dense>
 
+// Mathematical constants
+#define PI 3.14159265
+#define PHI 1.6180339887
+
+// Universal constants
+#define PLANCK_CONST (6.62607015 * pow(10, -34))
 #define GRAV_CONST (6.674 * pow(10,-11))
 #define LIGHTSPEED 299792458
+
+// Constants relevant to the simulation
+#define LIGHT_FRAC (pow(10, -9)) // Fraction of rays emitted from star to be simulated.
 
 class Matter
 {
@@ -64,9 +73,30 @@ class Star : Matter
 public:
   double luminosity;
   
-  Star();
+  Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
   void emit_light();
 };
+
+Star::Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
+{
+}
+
+void Star::emit_light()
+{
+  int photons = LIGHT_FRAC * (luminosity / PLANCK_CONST);
+  // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
+  for (int i = 0; i < photons; i++) {
+    y = 1 - (i / float(samples - 1)) * 2  # y goes from 1 to -1
+      radius = math.sqrt(1 - y * y)  # radius at y
+      
+      theta = phi * i  # golden angle increment
+      
+      x = math.cos(theta) * radius
+      z = math.sin(theta) * radius
+      
+      points.append((x, y, z))
+      }
+}
 
 class Universe
 {
@@ -98,8 +128,6 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
   matter.emplace_back(m,x,v,a);
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
-    std::cout << "Test?\n";
-    std::cout << &matter[matter.size()-1] << " " <<  &matter[i] << '\n';
     Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
     forces.push_back(grav1);
     std::cout << grav1.target << " " <<  grav1.source << '\n';
