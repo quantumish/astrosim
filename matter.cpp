@@ -2,7 +2,12 @@
 #include <array>
 #include <iostream>
 #include <cmath>
+
 #include <Eigen/Dense>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
+namespace py = pybind11;
 
 // Mathematical constants
 #define PI 3.14159265
@@ -14,7 +19,7 @@
 #define LIGHTSPEED 299792458
 
 // Constants relevant to the simulation
-#define LIGHT_FRAC (pow(10, -57)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_FRAC (pow(10, -55)) // Fraction of rays emitted from star to be simulated.
 
 class Matter
 {
@@ -62,9 +67,9 @@ Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
 
 class Photon
 {
+public:
   Eigen::Vector3d position;
   Eigen::Vector3d direction; // Unit vector in correct direction
-public:
   Photon(Eigen::Vector3d x, Eigen::Vector3d d);
 };
 
@@ -93,11 +98,7 @@ std::vector<Photon> Star::emit_light()
   std::vector<Photon> photons;
   double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
   std::cout << "NUM: " << num_photons << " = ("<< luminosity << " / " << PLANCK_CONST << ") * " << LIGHT_FRAC <<"\n";
-  std::cout << "\t" << (luminosity / PLANCK_CONST) << "\n\t" << LIGHT_FRAC * (luminosity / PLANCK_CONST) << "\n\t" << round(LIGHT_FRAC * (luminosity / PLANCK_CONST)) << "\n";
   // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
-  std::vector<double> x;
-  std::vector<double> y;
-  std::vector<double> z;
   for (int i = 0; (double) i < num_photons; i++) {
     Eigen::Vector3d point;
     point[1] = 1 - (i / (float)(num_photons - 1)) * 2;
@@ -107,36 +108,18 @@ std::vector<Photon> Star::emit_light()
       
     point[0] = cos(theta) * radius;
     point[2] = sin(theta) * radius;
-    x.emplace_back(point[0]);
-    y.emplace_back(point[1]);
-    z.emplace_back(point[2]);
       
     photons.emplace_back(position, point);
   }
-  std::cout << "[";
-  for (int i = 0; i < x.size(); i++) {
-    std::cout << x[i] << ",";
-  }
-  std::cout << "]\n";
-  std::cout << "[";
-  for (int i = 0; i < y.size(); i++) {
-    std::cout << y[i] << ",";
-  }
-  std::cout << "]\n";
-  std::cout << "[";
-  for (int i = 0; i < z.size(); i++) {
-    std::cout << z[i] << ",";
-  }
-  std::cout << "]\n";
   return photons;
 }
 
 class Universe
 {
+public:
   std::vector<Matter> matter;
   std::vector<Force> forces;
   void update_matter(Matter* obj);
-public:
   void add_matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
   void advance();
   Universe();
@@ -163,7 +146,6 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
   for (int i = 0; i < matter.size()-1; i++) {
     Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
     forces.push_back(grav1);
-    std::cout << grav1.target << " " <<  grav1.source << '\n';
     calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
     Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
     forces.push_back(grav2);
@@ -197,4 +179,14 @@ int main()
   // for (int i = 0; i < 10; i++) {
   //   scene.advance();
   // }
+}
+
+PYBIND11_MODULE(astrosim, m) {
+  m.doc() = "Simulate exoplanets with C++.";
+ 
+  py::class_<Universe>(m, "Universe")
+    .def(py::init<>())
+    .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"))
+    .def("advance", &Universe::advance)
+    .def_readonly("matter", &Universe::matter);
 }
