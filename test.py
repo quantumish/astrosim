@@ -5,7 +5,7 @@ import astrosim
 
 scene = astrosim.Universe()
 scene.add_matter(7.34*(10**20), [3840000000,0,0], [0,100000000,0], [0,0,0])
-scene.add_matter(5.19*(10**25), [0,0,0], [0,0,0], [0,0,0])
+scene.add_star(5.19*(10**25), [0,0,0], [0,0,0], [0,0,0], 10**26)
 
 fig = plt.figure()
 ax = plt.axes(projection='3d')

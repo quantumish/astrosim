@@ -83,9 +83,10 @@ class Star : public Matter
 {
 public:
   double luminosity;
+  std::vector<Photon> photons; // TODO: Rethink star managing its photons
   
   Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
-  std::vector<Photon> emit_light();
+  void emit_light();
 };
 
 Star::Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(m, x, v, a)
@@ -93,9 +94,8 @@ Star::Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::arra
   luminosity = L;
 }
 
-std::vector<Photon> Star::emit_light()
+void Star::emit_light()
 {
-  std::vector<Photon> photons;
   double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
   std::cout << "NUM: " << num_photons << " = ("<< luminosity << " / " << PLANCK_CONST << ") * " << LIGHT_FRAC <<"\n";
   // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
@@ -111,16 +111,17 @@ std::vector<Photon> Star::emit_light()
       
     photons.emplace_back(position, point);
   }
-  return photons;
 }
 
 class Universe
 {
 public:
   std::vector<Matter> matter;
+  std::vector<Star> stars;
   std::vector<Force> forces;
   void update_matter(Matter* obj);
   void add_matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
+  void add_star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
   void advance();
   Universe();
 };
@@ -153,6 +154,11 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
   }
 }
 
+void Universe::add_star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L)
+{
+  stars.emplace_back(m,x,v,a,L);
+}
+
 void Universe::update_matter(Matter* obj)
 {
   obj->position += obj->velocity;
@@ -166,13 +172,22 @@ void Universe::advance()
     forces[i].target->acceleration = forces[i].components / forces[i].target->mass;  // F = ma so F/m = a
     calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
   }
+  for (int i = 0; i < stars.size(); i++) {
+    update_matter(&stars[i]);
+    for (int j = 0; j < stars[i].photons.size(); j++) {
+      stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
+    }
+    stars[i].emit_light();
+  }
   //  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
 }
 
 int main()
 {
   Star star (pow(10,30), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  star.emit_light();
+  //star.emit_light();
+  Matter* test = &star;
+  
   // Universe scene{};
   // scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10000,0}, {0,0,0});
   // scene.add_matter(7.34*pow(10,24), {100000,0,0}, {0,0,0}, {0,0,0});
@@ -186,13 +201,24 @@ PYBIND11_MODULE(astrosim, m) {
 
   py::class_<Matter>(m, "Matter")
     .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>>())
+    .def_readonly("mass", &Matter::position)
     .def_readonly("position", &Matter::position)
     .def_readonly("velocity", &Matter::velocity)
     .def_readonly("acceleration", &Matter::acceleration);
+
+  py::class_<Star>(m, "Star")
+    .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, double>())
+    .def_readonly("mass", &Matter::position)
+    .def_readonly("luminosity", &Matter::position)
+    .def_readonly("position", &Star::position)
+    .def_readonly("velocity", &Star::velocity)
+    .def_readonly("acceleration", &Star::acceleration)
+    .def_readonly("photons", &Star::photons);
   
   py::class_<Universe>(m, "Universe")
     .def(py::init<>())
     .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"))
+    .def("add_star", &Universe::add_star, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
     .def("advance", &Universe::advance)
     .def_readonly("matter", &Universe::matter);
 }
