@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 
 #define GRAV_CONST (6.674 * pow(10,-11))
+#define LIGHTSPEED 299792458
 
 class Matter
 {
@@ -48,6 +49,23 @@ Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
   for (int i = 0; i < 3; i++) {
     components[i] = parts[i];
   }
+};
+
+class Photon
+{
+  Eigen::Vector3d position;
+  Eigen::Vector3d direction; // Unit vector in correct direction
+public:
+  Photon();
+};
+
+class Star : Matter
+{
+public:
+  double luminosity;
+  
+  Star();
+  void emit_light();
 };
 
 class Universe
@@ -102,20 +120,17 @@ void Universe::advance()
 {
   for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
   for (int i = 0; i < forces.size(); i++) {
-    std::cout << "Looping...\n";
     forces[i].target->acceleration = forces[i].components / forces[i].target->mass;  // F = ma so F/m = a
-    std::cout << "Updated target accel...\n";
     calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
-    std::cout << "Updated force...\n";
   }
-  //  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
+  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
 }
 
 int main()
 {
   Universe scene{};
-  scene.add_matter(7.34*pow(10,22), {0,0,0}, {1,0,0}, {1,0,0});
-  scene.add_matter(7.34*pow(10,22), {100000,0,0}, {1,0,0}, {1,0,0});
+  scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10000,0}, {0,0,0});
+  scene.add_matter(7.34*pow(10,24), {100000,0,0}, {0,0,0}, {0,0,0});
   for (int i = 0; i < 10; i++) {
     scene.advance();
   }
