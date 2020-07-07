@@ -131,11 +131,30 @@ void Star::emit_light()
   }
 }
 
+class Photometer
+{
+  double radius;
+  Eigen::Vector3d position;
+  std::vector<double> recorded;
+public:
+  Photometer(double r, std::array<double,3> x);
+};
+
+Photometer::Photometer(double r, std::array<double,3> x)
+{
+  radius = r;
+  for (int i = 0; i < 3; i++) {
+    position[i] = x[i];
+  }
+}
+
 class Universe
 {
 public:
+  int ticks = 0; // I don't want to disturb the 'nop'... TODO: check if this is bad practice
   std::vector<Matter> matter;
   std::vector<Star> stars;
+  std::vector<Photometer> photometers;
   std::vector<Force> forces;
   void update_matter(Matter* obj);
   void add_matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
@@ -198,7 +217,7 @@ void Universe::update_matter(Matter* obj)
 void Universe::check_ray(Photon photon)
 {
   for (int i = 0; i < matter.size(); i++) {
-     Eigen::Vector2d L = (photon.position-matter[i].position);
+     Eigen::Vector3d L = (photon.position-matter[i].position);
      double a = photon.direction.dot(photon.direction);
      double b = 2 * photon.direction.dot(L);
      double c = L.dot(L) - pow(matter[i].radius,2); 
@@ -217,6 +236,19 @@ void Universe::check_ray(Photon photon)
        photon.direction = (photon.position - matter[i].position).normalize();// Set new direction
      }
   }
+  for (int i = 0; i < photometers.size(); i++) {
+     Eigen::Vector2d L = (photon.position-matter[i].position);
+     double a = photon.direction.dot(photon.direction);
+     double b = 2 * photon.direction.dot(L);
+     double c = L.dot(L) - pow(matter[i].radius,2); 
+     double discriminant = pow(b,2) - 4*a*c;
+     if (discriminant == 0) {
+       photometers.recorded[ticks] += 1;
+     }
+     else if (discriminant > 0) {
+       photometers.recorded[ticks] += 1;
+     }
+  }
 }
 
 void Universe::advance()
@@ -232,14 +264,11 @@ void Universe::advance()
     }
     stars[i].emit_light();
   }
+  for (int i = 0; i < photometers.size(); i++) {
+    photometers[i].recorded.push_back(0);
+  }
+  ticks++;
   //std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
-}
-
-class Photometer
-{
-  Eigen::Vector3d position;
-public:
-  Photometer();
 }
 
 int main()
@@ -263,26 +292,36 @@ PYBIND11_MODULE(astrosim, m) {
   py::class_<Matter>(m, "Matter")
     .def(py::init<double, double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>>())
     .def_readonly("mass", &Matter::mass)
+    .def_readonly("radius", &Matter::radius)
     .def_readonly("position", &Matter::position)
     .def_readonly("velocity", &Matter::velocity)
     .def_readonly("acceleration", &Matter::acceleration);
 
   py::class_<Star>(m, "Star")
     .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, double>())
-    .def_readonly("mass", &Matter::position)
-    .def_readonly("luminosity", &Matter::position)
+    .def_readonly("mass", &Star::position)
+    .def_readonly("radius", &Star::radius)
+    .def_readonly("luminosity", &Star::luminosity)
     .def_readonly("position", &Star::position)
     .def_readonly("velocity", &Star::velocity)
     .def_readonly("acceleration", &Star::acceleration)
     .def_readonly("photons", &Star::photons);
+
+  py::class_<Photometer>(m, "Photometer")
+    .def(py::init<double, std::array<double,3>>())
+    .def_readonly("position", &Photometer::position)
+    .def_readonly("radius", &Photometer::radius)
+    .def_readonly("recorded", &Photometer::recorded);
   
   py::class_<Universe>(m, "Universe")
     .def(py::init<>())
     .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"))
     .def("add_star", &Universe::add_star, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
     .def("advance", &Universe::advance)
+    .def_readonly("ticks", &Universe::ticks)
     .def_readonly("matter", &Universe::matter)
     .def_readonly("stars", &Universe::stars)
-    .def_readonly("forces", &Universe::forces);
+    .def_readonly("forces", &Universe::forces)
+    .def_readonly("photometers", &Universe::photometers);
 }
 #endif
