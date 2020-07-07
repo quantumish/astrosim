@@ -30,6 +30,7 @@ public:
   Eigen::Vector3d position;
   Eigen::Vector3d velocity;
   Eigen::Vector3d acceleration;
+  Force net_force;
   Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
 };
 
@@ -45,6 +46,10 @@ Matter::Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::
   for (int i = 0; i < 3; i++) {
     acceleration[i] = a[i];
   }
+  Eigen::Vector3d blank = {0,0,0};
+  net_force.target = this;
+  net_force.source = NULL;
+  net_force.components = blank;
 }
 
 struct Force
@@ -173,13 +178,14 @@ void Universe::update_matter(Matter* obj)
 {
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
+  obj->acceleration = obj->net_force / obj->mass;
 }
 
 void Universe::advance()
 {
   for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
   for (int i = 0; i < forces.size(); i++) {
-    forces[i].target->acceleration = forces[i].components / forces[i].target->mass;  // F = ma so F/m = a
+    forces[i].target->net_force += forces[i].components;
     calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
   }
   for (int i = 0; i < stars.size(); i++) {
@@ -193,10 +199,9 @@ void Universe::advance()
 
 int main()
 {
-  Star star (pow(10,30), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
+  //  Star star (pow(10,30), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
   //star.emit_light();
-  Matter* test = &star;
-  
+  //Matter* test = &star;
   // Universe scene{};
   // scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10000,0}, {0,0,0});
   // scene.add_matter(7.34*pow(10,24), {100000,0,0}, {0,0,0}, {0,0,0});
