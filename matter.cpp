@@ -4,11 +4,12 @@
 #include <cmath>
 
 #include <Eigen/Dense>
+#ifdef PYTHON
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/eigen.h>
 namespace py = pybind11;
-
+#endif
 // Mathematical constants
 #define PI 3.14159265
 #define PHI 1.6180339887
@@ -61,10 +62,10 @@ public:
   Eigen::Vector3d velocity;
   Eigen::Vector3d acceleration;
   Force net_force;
-  Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
+  Matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
 };
 
-Matter::Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
+Matter::Matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
 {
   mass = m;
   for (int i = 0; i < 3; i++) {
@@ -102,11 +103,11 @@ public:
   double luminosity;
   std::vector<Photon> photons; // TODO: Rethink star managing its photons
   
-  Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
+  Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
   void emit_light();
 };
 
-Star::Star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(m, x, v, a)
+Star::Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(m, r, x, v, a)
 {
   luminosity = L;
 }
@@ -137,8 +138,9 @@ public:
   std::vector<Star> stars;
   std::vector<Force> forces;
   void update_matter(Matter* obj);
-  void add_matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
-  void add_star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
+  void add_matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
+  void add_star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
+  void check_ray(Photon photon);
   void advance();
   Universe();
 };
@@ -157,9 +159,9 @@ void calculate_gravity(Matter* target, Matter* source, Force* force)
 }
 
 
-void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
+void Universe::add_matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
 {
-  matter.emplace_back(m,x,v,a);
+  matter.emplace_back(m,r,x,v,a);
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
     Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
@@ -171,9 +173,9 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
   }
 }
 
-void Universe::add_star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L)
+void Universe::add_star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L)
 {
-  stars.emplace_back(m,x,v,a,L);
+  stars.emplace_back(m,r,x,v,a,L);
   //matter.push_back(stars[stars.size()-1]);
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
@@ -193,6 +195,15 @@ void Universe::update_matter(Matter* obj)
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
 }
 
+void Universe::check_ray(Photon photon)
+{
+  // TODO: Fixme
+  // double a = 1;
+  // double b = 2 * (photon.position);
+  // double c = (photon.position * photon.position) * pow(radius, 2);
+  // double discriminant = (b*b)-(4*a*c);
+}
+
 void Universe::advance()
 {
   for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
@@ -206,7 +217,7 @@ void Universe::advance()
     }
     stars[i].emit_light();
   }
-  //  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
+  //std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
 }
 
 int main()
@@ -214,19 +225,21 @@ int main()
   //  Star star (pow(10,30), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
   //star.emit_light();
   //Matter* test = &star;
-  // Universe scene{};
-  // scene.add_matter(7.34*pow(10,22), {0,0,0}, {0,10000,0}, {0,0,0});
-  // scene.add_matter(7.34*pow(10,24), {100000,0,0}, {0,0,0}, {0,0,0});
-  // for (int i = 0; i < 10; i++) {
-  //   scene.advance();
-  // }
+  Universe scene{};
+  scene.add_matter(7.34*pow(10,22), 10, {0,0,0}, {0,10000,0}, {0,0,0});
+  scene.add_matter(7.34*pow(10,24), 10, {100000,0,0}, {0,0,0}, {0,0,0});
+  scene.add_matter(7.34*pow(10,22), 10, {10000000,0,0}, {0,0,0}, {0,0,0});
+  for (int i = 0; i < 10; i++) {
+    scene.advance();
+  }
 }
 
+#ifdef PYTHON
 PYBIND11_MODULE(astrosim, m) {
   m.doc() = "Simulate exoplanets with C++.";
 
   py::class_<Matter>(m, "Matter")
-    .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>>())
+    .def(py::init<double, double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>>())
     .def_readonly("mass", &Matter::mass)
     .def_readonly("position", &Matter::position)
     .def_readonly("velocity", &Matter::velocity)
@@ -247,5 +260,7 @@ PYBIND11_MODULE(astrosim, m) {
     .def("add_star", &Universe::add_star, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
     .def("advance", &Universe::advance)
     .def_readonly("matter", &Universe::matter)
-    .def_readonly("stars", &Universe::stars);
+    .def_readonly("stars", &Universe::stars)
+    .def_readonly("forces", &Universe::forces);
 }
+#endif
