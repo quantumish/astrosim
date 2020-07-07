@@ -197,11 +197,26 @@ void Universe::update_matter(Matter* obj)
 
 void Universe::check_ray(Photon photon)
 {
-  // TODO: Fixme
-  // double a = 1;
-  // double b = 2 * (photon.position);
-  // double c = (photon.position * photon.position) * pow(radius, 2);
-  // double discriminant = (b*b)-(4*a*c);
+  for (int i = 0; i < matter.size(); i++) {
+     Eigen::Vector2d L = (photon.position-matter[i].position);
+     double a = photon.direction.dot(photon.direction);
+     double b = 2 * photon.direction.dot(L);
+     double c = L.dot(L) - pow(matter[i].radius,2); 
+     double discriminant = pow(b,2) - 4*a*c;
+     double t0 = NULL;
+     double t1 = NULL;
+     if (discriminant == 0) {
+       t0 = -b/(2*a);
+     }
+     else if (discriminant > 0) {
+       t0 = (-b+sqrt(discriminant))/(2*a);
+       t1 = (-b-sqrt(discriminant))/(2*a);
+     }
+     if (t0 != NULL) {
+       photon.position = photon.position + photon.direction * t0; // Don't go through the object
+       photon.direction = (photon.position - matter[i].position).normalize();// Set new direction
+     }
+  }
 }
 
 void Universe::advance()
@@ -218,6 +233,13 @@ void Universe::advance()
     stars[i].emit_light();
   }
   //std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
+}
+
+class Photometer
+{
+  Eigen::Vector3d position;
+public:
+  Photometer();
 }
 
 int main()
