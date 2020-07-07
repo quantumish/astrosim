@@ -20,7 +20,7 @@ namespace py = pybind11;
 #define LIGHTSPEED 299792458
 
 // Constants relevant to the simulation
-#define LIGHT_FRAC (pow(10, -59)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
 
 class Matter;
 
@@ -133,10 +133,10 @@ void Star::emit_light()
 
 class Photometer
 {
+public:
   double radius;
   Eigen::Vector3d position;
   std::vector<double> recorded;
-public:
   Photometer(double r, std::array<double,3> x);
 };
 
@@ -159,6 +159,7 @@ public:
   void update_matter(Matter* obj);
   void add_matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
   void add_star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
+  void add_photometer(double r, std::array<double,3> x);
   void check_ray(Photon photon);
   void advance();
   Universe();
@@ -197,14 +198,19 @@ void Universe::add_star(double m, double r, std::array<double, 3> x, std::array<
   stars.emplace_back(m,r,x,v,a,L);
   //matter.push_back(stars[stars.size()-1]);
   std::array<double, 3> blank = {0,0,0};
-  for (int i = 0; i < matter.size()-1; i++) {
-    Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
-    forces.push_back(grav1);
-    calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
-    Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
-    forces.push_back(grav2);
-    calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
-  }
+  // for (int i = 0; i < matter.size()-1; i++) {
+  //   Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
+  //   forces.push_back(grav1);
+  //   calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
+  //   Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
+  //   forces.push_back(grav2);
+  //   calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
+  // }
+}
+
+void Universe::add_photometer(double r, std::array<double,3> x)
+{
+  photometers.emplace_back(r, x);
 }
 
 void Universe::update_matter(Matter* obj)
@@ -217,37 +223,41 @@ void Universe::update_matter(Matter* obj)
 void Universe::check_ray(Photon photon)
 {
   for (int i = 0; i < matter.size(); i++) {
-     Eigen::Vector3d L = (photon.position-matter[i].position);
-     double a = photon.direction.dot(photon.direction);
-     double b = 2 * photon.direction.dot(L);
-     double c = L.dot(L) - pow(matter[i].radius,2); 
-     double discriminant = pow(b,2) - 4*a*c;
-     double t0 = NULL;
-     double t1 = NULL;
-     if (discriminant == 0) {
-       t0 = -b/(2*a);
-     }
-     else if (discriminant > 0) {
-       t0 = (-b+sqrt(discriminant))/(2*a);
-       t1 = (-b-sqrt(discriminant))/(2*a);
-     }
-     if (t0 != NULL) {
-       photon.position = photon.position + photon.direction * t0; // Don't go through the object
-       photon.direction = (photon.position - matter[i].position).normalize();// Set new direction
-     }
+    Eigen::Vector3d L = (photon.position-matter[i].position);
+    double a = photon.direction.dot(photon.direction);
+    double b = 2 * photon.direction.dot(L);
+    double c = L.dot(L) - pow(matter[i].radius,2); 
+    double discriminant = pow(b,2) - 4*a*c;
+    double t0 = nan("");
+    double t1 = nan("");
+    if (discriminant == 0) {
+      t0 = -b/(2*a);
+    }
+    else if (discriminant > 0) {
+      t0 = (-b+sqrt(discriminant))/(2*a);
+      t1 = (-b-sqrt(discriminant))/(2*a);
+    }
+    if (t0 != nan("")) {
+      photon.position = photon.position + photon.direction * t0; // Don't go through the object
+      photon.direction = (photon.position - matter[i].position).normalized();// Set new direction
+    }
   }
   for (int i = 0; i < photometers.size(); i++) {
-     Eigen::Vector2d L = (photon.position-matter[i].position);
-     double a = photon.direction.dot(photon.direction);
-     double b = 2 * photon.direction.dot(L);
-     double c = L.dot(L) - pow(matter[i].radius,2); 
-     double discriminant = pow(b,2) - 4*a*c;
-     if (discriminant == 0) {
-       photometers.recorded[ticks] += 1;
-     }
-     else if (discriminant > 0) {
-       photometers.recorded[ticks] += 1;
-     }
+    photon.direction *= LIGHTSPEED;
+    Eigen::Vector3d L = (photon.position-photometers[i].position);
+    double a = photon.direction.dot(photon.direction);
+    double b = 2 * photon.direction.dot(L);
+    double c = L.dot(L) - pow(photometers[i].radius,2);
+    double discriminant = pow(b,2) - 4*a*c;
+    if (discriminant == 0) {
+      std::cout << "HIT\n";
+      photometers[i].recorded[ticks] += 1;
+    }
+    else if (discriminant > 0) {
+      std::cout << "HIT\n";
+      photometers[i].recorded[ticks] += 1;
+    }
+    photon.direction /= LIGHTSPEED;
   }
 }
 
@@ -260,6 +270,7 @@ void Universe::advance()
   }
   for (int i = 0; i < stars.size(); i++) {
     for (int j = 0; j < stars[i].photons.size(); j++) {
+      check_ray(stars[i].photons[j]);
       stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
     }
     stars[i].emit_light();
@@ -277,11 +288,15 @@ int main()
   //star.emit_light();
   //Matter* test = &star;
   Universe scene{};
-  scene.add_matter(7.34*pow(10,22), 10, {0,0,0}, {0,10000,0}, {0,0,0});
-  scene.add_matter(7.34*pow(10,24), 10, {100000,0,0}, {0,0,0}, {0,0,0});
-  scene.add_matter(7.34*pow(10,22), 10, {10000000,0,0}, {0,0,0}, {0,0,0});
-  for (int i = 0; i < 10; i++) {
+  scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
+  scene.add_photometer(pow(10,6), {0,10,0});
+  //scene.add_matter(7.34*pow(10,24), 10, {100000,0,0}, {0,0,0}, {0,0,0});
+  //scene.add_matter(7.34*pow(10,22), 10, {10000000,0,0}, {0,0,0}, {0,0,0});
+  for (int i = 0; i < 1; i++) {
     scene.advance();
+  }
+  for (int i = 0; i < scene.photometers[0].recorded.size(); i++) {
+    std::cout << scene.photometers[0].recorded[i] << "\n";
   }
 }
 
