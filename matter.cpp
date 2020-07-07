@@ -21,6 +21,36 @@ namespace py = pybind11;
 // Constants relevant to the simulation
 #define LIGHT_FRAC (pow(10, -59)) // Fraction of rays emitted from star to be simulated.
 
+class Matter;
+
+struct Force
+{
+public:
+  Eigen::Vector3d components;
+  Matter* target;
+  Matter* source;
+  Force();
+  Force(Matter* end, Matter* src, std::array<double, 3> parts);
+};
+
+Force::Force()
+{
+  for (int i = 0; i < 3; i++) {
+    components[i] = 0;
+  }
+  target = nullptr;
+  source = nullptr;
+}
+
+Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
+{
+  target = end;
+  source = src;
+  for (int i = 0; i < 3; i++) {
+    components[i] = parts[i];
+  }
+};
+
 class Matter
 {
 public:
@@ -51,24 +81,6 @@ Matter::Matter(double m, std::array<double, 3> x, std::array<double, 3> v, std::
   net_force.source = NULL;
   net_force.components = blank;
 }
-
-struct Force
-{
-public:
-  Eigen::Vector3d components;
-  Matter* target;
-  Matter* source;
-  Force(Matter* end, Matter* src, std::array<double, 3> parts);
-};
-
-Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
-{
-  target = end;
-  source = src;
-  for (int i = 0; i < 3; i++) {
-    components[i] = parts[i];
-  }
-};
 
 class Photon
 {
@@ -162,7 +174,7 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
 void Universe::add_star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L)
 {
   stars.emplace_back(m,x,v,a,L);
-  matter.push_back(stars[stars.size()-1]);
+  //matter.push_back(stars[stars.size()-1]);
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
     Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
@@ -178,14 +190,14 @@ void Universe::update_matter(Matter* obj)
 {
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
-  obj->acceleration = obj->net_force / obj->mass;
+  obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
 }
 
 void Universe::advance()
 {
   for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
   for (int i = 0; i < forces.size(); i++) {
-    forces[i].target->net_force += forces[i].components;
+    forces[i].target->net_force.components += forces[i].components;
     calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
   }
   for (int i = 0; i < stars.size(); i++) {
@@ -215,7 +227,7 @@ PYBIND11_MODULE(astrosim, m) {
 
   py::class_<Matter>(m, "Matter")
     .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>>())
-    .def_readonly("mass", &Matter::position)
+    .def_readonly("mass", &Matter::mass)
     .def_readonly("position", &Matter::position)
     .def_readonly("velocity", &Matter::velocity)
     .def_readonly("acceleration", &Matter::acceleration);
