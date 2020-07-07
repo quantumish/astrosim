@@ -19,7 +19,7 @@ namespace py = pybind11;
 #define LIGHTSPEED 299792458
 
 // Constants relevant to the simulation
-#define LIGHT_FRAC (pow(10, -55)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_FRAC (pow(10, -59)) // Fraction of rays emitted from star to be simulated.
 
 class Matter
 {
@@ -157,6 +157,16 @@ void Universe::add_matter(double m, std::array<double, 3> x, std::array<double, 
 void Universe::add_star(double m, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L)
 {
   stars.emplace_back(m,x,v,a,L);
+  matter.push_back(stars[stars.size()-1]);
+  std::array<double, 3> blank = {0,0,0};
+  for (int i = 0; i < matter.size()-1; i++) {
+    Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
+    forces.push_back(grav1);
+    calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
+    Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
+    forces.push_back(grav2);
+    calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
+  }
 }
 
 void Universe::update_matter(Matter* obj)
@@ -173,7 +183,6 @@ void Universe::advance()
     calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
   }
   for (int i = 0; i < stars.size(); i++) {
-    update_matter(&stars[i]);
     for (int j = 0; j < stars[i].photons.size(); j++) {
       stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
     }
@@ -220,5 +229,6 @@ PYBIND11_MODULE(astrosim, m) {
     .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"))
     .def("add_star", &Universe::add_star, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
     .def("advance", &Universe::advance)
-    .def_readonly("matter", &Universe::matter);
+    .def_readonly("matter", &Universe::matter)
+    .def_readonly("stars", &Universe::stars);
 }
