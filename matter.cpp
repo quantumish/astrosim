@@ -21,6 +21,7 @@ namespace py = pybind11;
 
 // Constants relevant to the simulation
 #define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_EXPIRE 3// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
 
 class Matter;
 
@@ -105,6 +106,7 @@ public:
   
   Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
   void emit_light();
+  void kill_light();
 };
 
 Star::Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(m, r, x, v, a)
@@ -128,6 +130,16 @@ void Star::emit_light()
     point[2] = sin(theta) * radius;
       
     photons.emplace_back(position, point);
+  }
+}
+
+void Star::kill_light()
+{
+  // Should not be static... as a result changing luminosity not supported.
+  double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
+  for (int i = 0; i < num_photons; i++) {
+    std::cout << i <<"\n";
+    photons.erase(photons.begin());
   }
 }
 
@@ -284,6 +296,10 @@ void Universe::advance()
       check_ray(stars[i].photons[j]);
       stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
     }
+    if ((ticks+1) % LIGHT_EXPIRE == 0) {
+      stars[i].kill_light();
+    }
+    std::cout << stars[i].photons.size() << "\n";
     stars[i].emit_light();
   }
   ticks++;
@@ -292,15 +308,11 @@ void Universe::advance()
 
 int main()
 {
-  //  Star star (pow(10,30), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  //star.emit_light();
-  //Matter* test = &star;
   Universe scene{};
   scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
   scene.add_matter(7.34*pow(10,20), pow(10,5), {0,10,0}, {0,0,0}, {0,0,0});
   scene.add_photometer(pow(10,2), {0,100,0});
-  //scene.add_matter(7.34*pow(10,24), 10, {100000,0,0}, {0,0,0}, {0,0,0});
-  //scene.add_matter(7.34*pow(10,22), 10, {10000000,0,0}, {0,0,0}, {0,0,0});
+
   for (int i = 0; i < 4; i++) {
     scene.advance();
   }
