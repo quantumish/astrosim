@@ -322,7 +322,7 @@ PYBIND11_MODULE(astrosim, m) {
     .def_readonly("acceleration", &Matter::acceleration);
 
   py::class_<Star>(m, "Star")
-    .def(py::init<double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, double>())
+    .def(py::init<double, double, std::array<double, 3>, std::array<double, 3>, std::array<double, 3>, double>())
     .def_readonly("mass", &Star::position)
     .def_readonly("radius", &Star::radius)
     .def_readonly("luminosity", &Star::luminosity)
@@ -339,8 +339,9 @@ PYBIND11_MODULE(astrosim, m) {
   
   py::class_<Universe>(m, "Universe")
     .def(py::init<>())
-    .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"))
-    .def("add_star", &Universe::add_star, py::arg("m"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
+    .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("r"), py::arg("x"), py::arg("v"), py::arg("a"))
+    .def("add_star", &Universe::add_star, py::arg("m"), py::arg("r"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
+    .def("add_photometer", &Universe::add_photometer, py::arg("r"), py::arg("x"))
     .def("advance", &Universe::advance)
     .def_readonly("ticks", &Universe::ticks)
     .def_readonly("matter", &Universe::matter)
