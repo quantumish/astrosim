@@ -244,17 +244,19 @@ void Universe::check_ray(Photon photon)
   }
   for (int i = 0; i < photometers.size(); i++) {
     photon.direction *= LIGHTSPEED;
+    //std::cout << "??\n";
     Eigen::Vector3d L = (photon.position-photometers[i].position);
     double a = photon.direction.dot(photon.direction);
     double b = 2 * photon.direction.dot(L);
     double c = L.dot(L) - pow(photometers[i].radius,2);
     double discriminant = pow(b,2) - 4*a*c;
+    //    std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
-      std::cout << "HIT\n";
+      //      std::cout << "HIT\n";
       photometers[i].recorded[ticks] += 1;
     }
     else if (discriminant > 0) {
-      std::cout << "HIT\n";
+      //      std::cout << "HIT\n";
       photometers[i].recorded[ticks] += 1;
     }
     photon.direction /= LIGHTSPEED;
@@ -263,6 +265,9 @@ void Universe::check_ray(Photon photon)
 
 void Universe::advance()
 {
+  for (int i = 0; i < photometers.size(); i++) {
+    photometers[i].recorded.push_back(0);
+  }
   for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
   for (int i = 0; i < forces.size(); i++) {
     forces[i].target->net_force.components += forces[i].components;
@@ -275,9 +280,6 @@ void Universe::advance()
     }
     stars[i].emit_light();
   }
-  for (int i = 0; i < photometers.size(); i++) {
-    photometers[i].recorded.push_back(0);
-  }
   ticks++;
   //std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\n\n";
 }
@@ -289,14 +291,14 @@ int main()
   //Matter* test = &star;
   Universe scene{};
   scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  scene.add_photometer(pow(10,6), {0,10,0});
+  scene.add_photometer(pow(10,2), {0,10,0});
   //scene.add_matter(7.34*pow(10,24), 10, {100000,0,0}, {0,0,0}, {0,0,0});
   //scene.add_matter(7.34*pow(10,22), 10, {10000000,0,0}, {0,0,0}, {0,0,0});
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 4; i++) {
     scene.advance();
   }
   for (int i = 0; i < scene.photometers[0].recorded.size(); i++) {
-    std::cout << scene.photometers[0].recorded[i] << "\n";
+    std::cout << scene.photometers[0].recorded[i] << "  " << scene.ticks <<"\n";
   }
 }
 
