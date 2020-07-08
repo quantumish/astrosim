@@ -237,27 +237,33 @@ void Universe::check_ray(Photon photon)
       t0 = (-b+sqrt(discriminant))/(2*a);
       t1 = (-b-sqrt(discriminant))/(2*a);
     }
-    if (t0 != nan("")) {
+    if (t0 != nan("") && t0 >= 0 && t0 <= 1) {
+      std::cout << "HIT\n";
       photon.position = photon.position + photon.direction * t0; // Don't go through the object
       photon.direction = (photon.position - matter[i].position).normalized();// Set new direction
     }
   }
   for (int i = 0; i < photometers.size(); i++) {
+    //std::cout << photon.position << " " << photometers[0].position << " AGH\n";
     photon.direction *= LIGHTSPEED;
     //std::cout << "??\n";
     Eigen::Vector3d L = (photon.position-photometers[i].position);
     double a = photon.direction.dot(photon.direction);
     double b = 2 * photon.direction.dot(L);
+    //    std::cout << L << "\n\n" << L.dot(L) << "\n\n" << photometers[i].position << "\n\n" << photon.position << "\n\n\n\n__END__\n\n\n\n";
     double c = L.dot(L) - pow(photometers[i].radius,2);
     double discriminant = pow(b,2) - 4*a*c;
     //    std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
-      //      std::cout << "HIT\n";
-      photometers[i].recorded[ticks] += 1;
+      //std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
+      //  std::cout << "HIT\n";
+      double t0 = -b/(2*a);
+      if (t0 >= 0 && t0 <= 1) photometers[i].recorded[ticks] += 1;
     }
     else if (discriminant > 0) {
-      //      std::cout << "HIT\n";
-      photometers[i].recorded[ticks] += 1;
+      double t0 = (-b+sqrt(discriminant))/(2*a);
+      double t1 = (-b-sqrt(discriminant))/(2*a);
+      if (t0 >= 0 && t0 <= 1) photometers[i].recorded[ticks] += 1;
     }
     photon.direction /= LIGHTSPEED;
   }
@@ -291,7 +297,8 @@ int main()
   //Matter* test = &star;
   Universe scene{};
   scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  scene.add_photometer(pow(10,2), {0,10,0});
+  scene.add_matter(7.34*pow(10,20), pow(10,5), {0,10,0}, {0,0,0}, {0,0,0});
+  scene.add_photometer(pow(10,2), {0,100,0});
   //scene.add_matter(7.34*pow(10,24), 10, {100000,0,0}, {0,0,0}, {0,0,0});
   //scene.add_matter(7.34*pow(10,22), 10, {10000000,0,0}, {0,0,0}, {0,0,0});
   for (int i = 0; i < 4; i++) {
