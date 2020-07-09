@@ -29,10 +29,10 @@ struct Force
 {
 public:
   Eigen::Vector3d components;
-  Matter* target;
-  Matter* source;
+  void* target;
+  void* source;
   Force();
-  Force(Matter* end, Matter* src, std::array<double, 3> parts);
+  Force(void* end, void* src, std::array<double, 3> parts);
 };
 
 Force::Force()
@@ -44,7 +44,7 @@ Force::Force()
   source = nullptr;
 }
 
-Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
+Force::Force(void* end, void* src, std::array<double, 3> parts)
 {
   target = end;
   source = src;
@@ -191,6 +191,21 @@ void calculate_gravity(Matter* target, Matter* source, Force* force)
   force->components = F;
 }
 
+void calculate_gravity(Matter* target, Star* source, Force* force)
+{
+  double distance = sqrt(pow(target->position[0] - source->position[0],2)+pow(target->position[1] - source->position[1],2))+pow(target->position[2] - source->position[2],2);
+  double magnitude = GRAV_CONST * ((target->mass * source->mass)/distance); // Calculate the magnitude of the force between the objects
+  Eigen::Vector3d F = (source->position - target->position).normalized() * magnitude; // Express as vector
+  force->components = F;
+}
+
+void calculate_gravity(Star* target, Matter* source, Force* force)
+{
+  double distance = sqrt(pow(target->position[0] - source->position[0],2)+pow(target->position[1] - source->position[1],2))+pow(target->position[2] - source->position[2],2);
+  double magnitude = GRAV_CONST * ((target->mass * source->mass)/distance); // Calculate the magnitude of the force between the objects
+  Eigen::Vector3d F = (source->position - target->position).normalized() * magnitude; // Express as vector
+  force->components = F;
+}
 
 void Universe::add_matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
 {
