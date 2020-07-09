@@ -68,6 +68,7 @@ public:
 
 Matter::Matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
 {
+  radius = r;
   mass = m;
   for (int i = 0; i < 3; i++) {
     position[i] = x[i];
@@ -234,17 +235,19 @@ void Universe::update_matter(Matter* obj)
 
 void Universe::check_ray(Photon photon)
 {
-  photon.direction *= LIGHTSPEED;
   for (int i = 0; i < matter.size(); i++) {
+    photon.direction *= LIGHTSPEED;
     Eigen::Vector3d L = (photon.position-matter[i].position);
     double a = photon.direction.dot(photon.direction);
     double b = 2 * photon.direction.dot(L);
-    double c = L.dot(L) - pow(matter[i].radius,2); 
+    //    std::cout << photon.direction <<"\n\n vs \n\n";
+    double c = L.dot(L) - pow(matter[i].radius,2);
+    //    std::cout << c << " = " << L.dot(L) << " - " << pow(matter[i].radius, 2) << "\n";
     double discriminant = pow(b,2) - 4*a*c;
+    //    std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
       double t0 = -b/(2*a);
       if (t0 >= 0 && t0 <= 1) {
-        printf("HIT\n");
         photon.position = photon.position + photon.direction * t0; // Don't go through the object
         photon.direction = (photon.position - matter[i].position).normalized() * LIGHTSPEED;// Set new direction
       }
@@ -253,11 +256,11 @@ void Universe::check_ray(Photon photon)
       double t0 = (-b+sqrt(discriminant))/(2*a);
       //t1 = (-b-sqrt(discriminant))/(2*a);
       if (t0 >= 0 && t0 <= 1) {
-        printf("HIT\n");
         photon.position = photon.position + photon.direction * t0; // Don't go through the object
         photon.direction = (photon.position - matter[i].position).normalized() * LIGHTSPEED;// Set new direction
       }
     }
+    photon.direction /= LIGHTSPEED;
   }
   for (int i = 0; i < photometers.size(); i++) {
     photon.direction *= LIGHTSPEED;
@@ -266,11 +269,11 @@ void Universe::check_ray(Photon photon)
     double b = 2 * photon.direction.dot(L);
     double c = L.dot(L) - pow(photometers[i].radius,2);
     double discriminant = pow(b,2) - 4*a*c;
+    //    std::cout << photon.direction << "\n\n\n\n";
+    //std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
-      //std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
       double t0 = -b/(2*a);
       if (t0 >= 0 && t0 <= 1) {
-        //        printf("HIT PHOTO\n");
         photometers[i].recorded[ticks] += 1;
       }
     }
@@ -278,7 +281,6 @@ void Universe::check_ray(Photon photon)
       double t0 = (-b+sqrt(discriminant))/(2*a);
       double t1 = (-b-sqrt(discriminant))/(2*a);
       if (t0 >= 0 && t0 <= 1) {
-        //        printf("HIT PHOTO\n");
         photometers[i].recorded[ticks] += 1;
       }
     }
@@ -314,8 +316,8 @@ int main()
 {
   Universe scene{};
   scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  scene.add_matter(7.34*pow(10,20), pow(10,5), {0,10,0}, {0,0,0}, {0,0,0});
-  scene.add_photometer(pow(10,2), {0,100,0});
+  scene.add_matter(7.34*pow(10,20), pow(10,6), {0,10,0}, {0,0,0}, {0,0,0});
+  scene.add_photometer(100, {0,100,0});
 
   for (int i = 0; i < 5; i++) {
     scene.advance();
