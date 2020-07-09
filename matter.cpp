@@ -21,7 +21,7 @@ namespace py = pybind11;
 
 // Constants relevant to the simulation
 #define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
-#define LIGHT_EXPIRE 3// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
+#define LIGHT_EXPIRE 1000000// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
 
 class Matter;
 
@@ -117,7 +117,7 @@ Star::Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v,
 void Star::emit_light()
 {
   double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
-  std::cout << "NUM: " << num_photons << " = ("<< luminosity << " / " << PLANCK_CONST << ") * " << LIGHT_FRAC <<"\n";
+  //  std::cout << "NUM: " << num_photons << " = ("<< luminosity << " / " << PLANCK_CONST << ") * " << LIGHT_FRAC <<"\n";
   // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
   for (int i = 0; (double) i < num_photons; i++) {
     Eigen::Vector3d point;
@@ -234,51 +234,56 @@ void Universe::update_matter(Matter* obj)
 
 void Universe::check_ray(Photon photon)
 {
+  photon.direction *= LIGHTSPEED;
   for (int i = 0; i < matter.size(); i++) {
     Eigen::Vector3d L = (photon.position-matter[i].position);
     double a = photon.direction.dot(photon.direction);
     double b = 2 * photon.direction.dot(L);
     double c = L.dot(L) - pow(matter[i].radius,2); 
     double discriminant = pow(b,2) - 4*a*c;
-    double t0 = nan("");
-    double t1 = nan("");
     if (discriminant == 0) {
-      t0 = -b/(2*a);
+      double t0 = -b/(2*a);
+      if (t0 >= 0 && t0 <= 1) {
+        printf("HIT\n");
+        photon.position = photon.position + photon.direction * t0; // Don't go through the object
+        photon.direction = (photon.position - matter[i].position).normalized() * LIGHTSPEED;// Set new direction
+      }
     }
     else if (discriminant > 0) {
-      t0 = (-b+sqrt(discriminant))/(2*a);
-      t1 = (-b-sqrt(discriminant))/(2*a);
-    }
-    if (t0 != nan("") && t0 >= 0 && t0 <= 1) {
-      std::cout << "HIT\n";
-      photon.position = photon.position + photon.direction * t0; // Don't go through the object
-      photon.direction = (photon.position - matter[i].position).normalized();// Set new direction
+      double t0 = (-b+sqrt(discriminant))/(2*a);
+      //t1 = (-b-sqrt(discriminant))/(2*a);
+      if (t0 >= 0 && t0 <= 1) {
+        printf("HIT\n");
+        photon.position = photon.position + photon.direction * t0; // Don't go through the object
+        photon.direction = (photon.position - matter[i].position).normalized() * LIGHTSPEED;// Set new direction
+      }
     }
   }
   for (int i = 0; i < photometers.size(); i++) {
-    //std::cout << photon.position << " " << photometers[0].position << " AGH\n";
     photon.direction *= LIGHTSPEED;
-    //std::cout << "??\n";
     Eigen::Vector3d L = (photon.position-photometers[i].position);
     double a = photon.direction.dot(photon.direction);
     double b = 2 * photon.direction.dot(L);
-    //    std::cout << L << "\n\n" << L.dot(L) << "\n\n" << photometers[i].position << "\n\n" << photon.position << "\n\n\n\n__END__\n\n\n\n";
     double c = L.dot(L) - pow(photometers[i].radius,2);
     double discriminant = pow(b,2) - 4*a*c;
-    //    std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
       //std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
-      //  std::cout << "HIT\n";
       double t0 = -b/(2*a);
-      if (t0 >= 0 && t0 <= 1) photometers[i].recorded[ticks] += 1;
+      if (t0 >= 0 && t0 <= 1) {
+        //        printf("HIT PHOTO\n");
+        photometers[i].recorded[ticks] += 1;
+      }
     }
     else if (discriminant > 0) {
       double t0 = (-b+sqrt(discriminant))/(2*a);
       double t1 = (-b-sqrt(discriminant))/(2*a);
-      if (t0 >= 0 && t0 <= 1) photometers[i].recorded[ticks] += 1;
+      if (t0 >= 0 && t0 <= 1) {
+        //        printf("HIT PHOTO\n");
+        photometers[i].recorded[ticks] += 1;
+      }
     }
-    photon.direction /= LIGHTSPEED;
   }
+  photon.direction /= LIGHTSPEED;
 }
 
 void Universe::advance()
@@ -299,7 +304,6 @@ void Universe::advance()
     if ((ticks+1) % LIGHT_EXPIRE == 0) {
       stars[i].kill_light();
     }
-    std::cout << stars[i].photons.size() << "\n";
     stars[i].emit_light();
   }
   ticks++;
@@ -313,7 +317,7 @@ int main()
   scene.add_matter(7.34*pow(10,20), pow(10,5), {0,10,0}, {0,0,0}, {0,0,0});
   scene.add_photometer(pow(10,2), {0,100,0});
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 5; i++) {
     scene.advance();
   }
   for (int i = 0; i < scene.photometers[0].recorded.size(); i++) {
