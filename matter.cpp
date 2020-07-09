@@ -204,21 +204,36 @@ void Universe::add_matter(double m, double r, std::array<double, 3> x, std::arra
     forces.push_back(grav2);
     calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
   }
+  for (int i = 0; i < stars.size()-1; i++) {
+    Force grav1 = {&matter[matter.size()-1], &stars[i], blank};
+    forces.push_back(grav1);
+    calculate_gravity(&matter[matter.size()-1], &stars[i], &forces[forces.size()-1]);
+    Force grav2 = {&stars[i], &matter[matter.size()-1], blank};
+    forces.push_back(grav2);
+    calculate_gravity(&stars[i], &matter[matter.size()-1], &forces[forces.size()-1]);
+  }
 }
 
 void Universe::add_star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L)
 {
   stars.emplace_back(m,r,x,v,a,L);
-  //matter.push_back(stars[stars.size()-1]);
   std::array<double, 3> blank = {0,0,0};
-  // for (int i = 0; i < matter.size()-1; i++) {
-  //   Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
-  //   forces.push_back(grav1);
-  //   calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
-  //   Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
-  //   forces.push_back(grav2);
-  //   calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
-  // }
+  for (int i = 0; i < matter.size()-1; i++) {
+    Force grav1 = {&stars[stars.size()-1], &matter[i], blank};
+    forces.push_back(grav1);
+    calculate_gravity(&stars[stars.size()-1], &matter[i], &forces[forces.size()-1]);
+    Force grav2 = {&matter[i], &stars[stars.size()-1], blank};
+    forces.push_back(grav2);
+    calculate_gravity(&matter[i], &stars[stars.size()-1], &forces[forces.size()-1]);
+  }
+  for (int i = 0; i < stars.size()-1; i++) {
+    Force grav1 = {&stars[stars.size()-1], &stars[i], blank};
+    forces.push_back(grav1);
+    calculate_gravity(&stars[stars.size()-1], &stars[i], &forces[forces.size()-1]);
+    Force grav2 = {&stars[i], &stars[stars.size()-1], blank};
+    forces.push_back(grav2);
+    calculate_gravity(&stars[i], &stars[stars.size()-1], &forces[forces.size()-1]);
+  }
 }
 
 void Universe::add_photometer(double r, std::array<double,3> x)
@@ -316,7 +331,7 @@ int main()
 {
   Universe scene{};
   scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  scene.add_matter(7.34*pow(10,20), pow(10,6), {0,10,0}, {0,0,0}, {0,0,0});
+  //  scene.add_matter(7.34*pow(10,20), pow(10,6), {0,10,0}, {0,0,0}, {0,0,0});
   scene.add_photometer(100, {0,100,0});
 
   for (int i = 0; i < 5; i++) {
