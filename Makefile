@@ -1,5 +1,5 @@
 build:
-	g++ -shared -std=c++11 -undefined dynamic_lookup `python3 -m pybind11 --includes` universe.cpp -o astrosim`python3-config --extension-suffix` -D PYTHON
+	g++ -O3 -shared -std=c++11 -undefined dynamic_lookup `python3 -m pybind11 --includes` universe.cpp -o astrosim`python3-config --extension-suffix` -D PYTHON
 
 test:
 	g++ universe.cpp -std=c++11 -o astrosim
