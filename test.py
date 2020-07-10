@@ -5,10 +5,12 @@ import astrosim
 
 scene = astrosim.Universe()
 scene.add_star(7.34*(10**20), 10**6, [0,0,0], [0,0,0], [0,0,0], 10**26)
+scene.add_matter(7.34*(10**20), 10**6, [0,0,0], [0,0,0], [0,0,0])
 scene.add_matter(5.19*(10**25), 10**2, [-100,0,0], [50,0,0], [0,0,0])
 scene.add_photometer(10**2, [0,100,0])
 
-for i in range(3):
+for i in range(10):
+    print(i)
     scene.advance()
 
 plt.plot(scene.photometers[0].recorded[1:])
