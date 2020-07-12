@@ -30,8 +30,8 @@ struct Force
 {
 public:
   Eigen::Vector3d components;
-  T1* target;
-  T2* source;
+  T1* source;
+  T2* target;
   Force();
   Force(T1* src, T2* end, std::array<double, 3> parts);
 };

@@ -8,7 +8,10 @@ public:
   std::vector<Matter> matter;
   std::vector<Star> stars;
   std::vector<Photometer> photometers;
-  std::vector<Force> forces;
+  std::vector<Force<Matter, Matter>> forces1;
+  std::vector<Force<Matter, Star>> forces2;
+  std::vector<Force<Star, Matter>> forces3;
+  std::vector<Force<Star, Star>> forces4;
   void update_matter(Matter* obj);
   void add_matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
   void add_star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
@@ -24,7 +27,7 @@ Universe::Universe()
 }
 
 template <class T1, class T2>
-void calculate_gravity(T1* target, T2* source, Force<T1, T2>* force)
+void calculate_gravity(T1* source, T2* target, Force<T1, T2>* force)
 {
   double distance = sqrt(pow(target->position[0] - source->position[0],2)+pow(target->position[1] - source->position[1],2))+pow(target->position[2] - source->position[2],2);
   double magnitude = GRAV_CONST * ((target->mass * source->mass)/distance); // Calculate the magnitude of the force between the objects
@@ -38,11 +41,19 @@ void Universe::add_matter(double m, double r, std::array<double, 3> x, std::arra
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
     Force<Matter, Matter> grav1 = {&matter[matter.size()-1], &matter[i], blank};
-    forces.push_back(grav1);
-    calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
+    forces1.push_back(grav1);
+    calculate_gravity <Matter, Star> (&matter[matter.size()-1], &matter[i], &forces1[forces1.size()-1]);
     Force<Matter, Matter> grav2 = {&matter[i], &matter[matter.size()-1], blank};
-    forces.push_back(grav2);
-    calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
+    forces1.push_back(grav2);
+    calculate_gravity(&matter[i], &matter[matter.size()-1], &forces1[forces1.size()-1]);
+  }
+  for (int i = 0; i < stars.size()-1; i++) {
+    Force<Matter, Star> grav1 = {&matter[matter.size()-1], &stars[i], blank};
+    forces2.push_back(grav1);
+    calculate_gravity(&matter[matter.size()-1], &stars[i], &forces2[forces2.size()-1]);
+    Force<Star, Matter> grav2 (&stars[i], &matter[matter.size()-1], blank);
+    forces3.push_back(grav2);
+    calculate_gravity(&stars[i], &matter[matter.size()-1], &forces3[forces3.size()-1]);
   }
 }
 
@@ -50,6 +61,22 @@ void Universe::add_star(double m, double r, std::array<double, 3> x, std::array<
 {
   stars.emplace_back(m,r,x,v,a,L);
   std::array<double, 3> blank = {0,0,0};
+  for (int i = 0; i < matter.size()-1; i++) {
+    Force<Star, Matter> grav1 = {&stars[stars.size()-1], &matter[i], blank};
+    forces3.push_back(grav1);
+    calculate_gravity(&stars[stars.size()-1], &matter[i], &forces3[forces3.size()-1]);
+    Force<Matter, Star> grav2 = {&matter[i], &stars[stars.size()-1], blank};
+    forces2.push_back(grav2);
+    calculate_gravity(&matter[i], &stars[stars.size()-1], &forces2[forces2.size()-1]);
+  }
+  for (int i = 0; i < stars.size()-1; i++) {
+    Force<Star, Star> grav1 = {&stars[stars.size()-1], &stars[i], blank};
+    forces4.push_back(grav1);
+    calculate_gravity(&stars[stars.size()-1], &stars[i], &forces4[forces4.size()-1]);
+    Force<Star, Star> grav2 = {&stars[i], &stars[stars.size()-1], blank};
+    forces4.push_back(grav2);
+    calculate_gravity(&stars[i], &stars[stars.size()-1], &forces4[forces4.size()-1]);
+  }
 }
 
 void Universe::add_photometer(double r, std::array<double,3> x)
@@ -125,9 +152,21 @@ void Universe::advance()
     photometers[i].recorded.push_back(0);
   }
   for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
-  for (int i = 0; i < forces.size(); i++) {
-    forces[i].target->net_force.components += forces[i].components;
-    calculate_gravity(forces[i].target, forces[i].source, &forces[i]);
+  for (int i = 0; i < forces1.size(); i++) {
+    forces1[i].target->net_force.components += forces1[i].components;
+    calculate_gravity(forces1[i].target, forces1[i].source, &forces1[i]);
+  }
+  for (int i = 0; i < forces2.size(); i++) {
+    forces2[i].target->net_force.components += forces2[i].components;
+    calculate_gravity(forces2[i].target, forces2[i].source, &forces2[i]);
+  }
+  for (int i = 0; i < forces3.size(); i++) {
+    forces3[i].target->net_force.components += forces3[i].components;
+    calculate_gravity(forces3[i].target, forces3[i].source, &forces3[i]);
+  }
+  for (int i = 0; i < forces4.size(); i++) {
+    forces4[i].target->net_force.components += forces4[i].components;
+    calculate_gravity(forces4[i].target, forces4[i].source, &forces4[i]);
   }
   for (int i = 0; i < stars.size(); i++) {
     for (int j = 0; j < stars[i].photons.size(); j++) {
