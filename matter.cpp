@@ -25,17 +25,19 @@ namespace py = pybind11;
 
 class Matter;
 
+template <class T1, class T2>
 struct Force
 {
 public:
   Eigen::Vector3d components;
-  Matter* target;
-  Matter* source;
+  T1* target;
+  T2* source;
   Force();
-  Force(Matter* end, Matter* src, std::array<double, 3> parts);
+  Force(T1* src, T2* end, std::array<double, 3> parts);
 };
 
-Force::Force()
+template<class T1, class T2>
+Force<T1,T2>::Force()
 {
   for (int i = 0; i < 3; i++) {
     components[i] = 0;
@@ -44,7 +46,8 @@ Force::Force()
   source = nullptr;
 }
 
-Force::Force(Matter* end, Matter* src, std::array<double, 3> parts)
+template<class T1, class T2>
+Force<T1,T2>::Force(T1* src, T2* end, std::array<double, 3> parts)
 {
   target = end;
   source = src;
@@ -62,7 +65,7 @@ public:
   Eigen::Vector3d position;
   Eigen::Vector3d velocity;
   Eigen::Vector3d acceleration;
-  Force net_force;
+  Force<Matter, Matter> net_force;
   Matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
 };
 

@@ -23,7 +23,8 @@ Universe::Universe()
   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
 }
 
-void calculate_gravity(Matter* target, Matter* source, Force* force)
+template <class T1, class T2>
+void calculate_gravity(T1* target, T2* source, Force<T1, T2>* force)
 {
   double distance = sqrt(pow(target->position[0] - source->position[0],2)+pow(target->position[1] - source->position[1],2))+pow(target->position[2] - source->position[2],2);
   double magnitude = GRAV_CONST * ((target->mass * source->mass)/distance); // Calculate the magnitude of the force between the objects
@@ -36,10 +37,10 @@ void Universe::add_matter(double m, double r, std::array<double, 3> x, std::arra
   matter.emplace_back(m,r,x,v,a);
   std::array<double, 3> blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
-    Force grav1 = {&matter[matter.size()-1], &matter[i], blank};
+    Force<Matter, Matter> grav1 = {&matter[matter.size()-1], &matter[i], blank};
     forces.push_back(grav1);
     calculate_gravity(&matter[matter.size()-1], &matter[i], &forces[forces.size()-1]);
-    Force grav2 = {&matter[i], &matter[matter.size()-1], blank};
+    Force<Matter, Matter> grav2 = {&matter[i], &matter[matter.size()-1], blank};
     forces.push_back(grav2);
     calculate_gravity(&matter[i], &matter[matter.size()-1], &forces[forces.size()-1]);
   }
