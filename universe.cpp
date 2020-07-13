@@ -1,4 +1,3 @@
-#include "matter.cpp"
 #include "tools.cpp"
 
 class Universe
@@ -180,7 +179,7 @@ void Universe::advance()
 int main()
 {
   Universe scene{};
-  scene.add_star(7.34*pow(10,30), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
+  scene.add_star(7.34*pow(10,30), -696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
   scene.add_matter(7.34*pow(10,20), pow(10,6), {10,0,0}, {0,0,0}, {0,0,0});
   for (int i = 0; i < 5; i++) {
     scene.advance();
