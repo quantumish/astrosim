@@ -121,7 +121,7 @@ void Universe::check_ray(Photon photon)
     double b = 2 * photon.direction.dot(L);
     double c = L.dot(L) - pow(photometers[i].radius,2);
     double discriminant = pow(b,2) - 4*a*c;
-    //    std::cout << photon.direction << "\n\n\n\n";
+    //    std::out << photon.direction << "\n\n\n\n";
     //std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
       double t0 = -b/(2*a);
@@ -179,7 +179,7 @@ void Universe::advance()
 int main()
 {
   Universe scene{};
-  scene.add_star(7.34*pow(10,30), -696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
+  scene.add_star(7.34*pow(10,30), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
   scene.add_matter(7.34*pow(10,20), pow(10,6), {10,0,0}, {0,0,0}, {0,0,0});
   for (int i = 0; i < 5; i++) {
     scene.advance();

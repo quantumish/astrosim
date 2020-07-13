@@ -4,12 +4,12 @@ import matplotlib.animation as animation
 import astrosim
 
 scene = astrosim.Universe()
-scene.add_star(7.34*(10**30), 10**6, [0,0,0], [0,0,0], [0,0,0], 10**26)
-scene.add_matter(5.9*(10**24), 10**2, [5000000000000,5000000000000,0], [10000000000,0,0], [0,0,0])
-scene.add_photometer(10**2, [0,10000,0])
+scene.add_star(1.9*(10**30), 696 * 10**6, [0,0,0], [0,0,0], [0,0,0], 10**0)
+#scene.add_matter(5.9*(10**24), 6 * 10**6, [0,250 * 10**12,0], [20,0,0], [0,0,0])
+scene.add_photometer(10**2, [0,10000000,0])
 
 # for i in range(10):
-#     print(i)
+#     # print(i)
 #     scene.advance()
 
 # plt.plot(scene.photometers[0].recorded[1:])
@@ -21,7 +21,8 @@ ax = plt.axes(projection='3d')
 x1,x2,x3=[],[],[]
 y1,y2,y3=[],[],[]
 z1,z2,z3=[],[],[]
-for j in range(100):
+for j in range(30000):
+   print(j)
    x1.append(scene.matter[0].position[0])
    y1.append(scene.matter[0].position[1])
    z1.append(scene.matter[0].position[2])

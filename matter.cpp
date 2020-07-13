@@ -21,7 +21,7 @@ namespace py = pybind11;
 
 // Constants relevant to the simulation
 #define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
-#define LIGHT_EXPIRE 1// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
+#define LIGHT_EXPIRE 3// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
 
 struct ValueError : public std::exception
 {
@@ -32,10 +32,6 @@ struct ValueError : public std::exception
   const char* what() const throw () {
     return error_message;
   }
-  // const char * what () const throw ()
-  // {
-  //   return "Invalid value for parameter.";
-  // }
 };
 
 class Matter;
@@ -135,11 +131,7 @@ void Star::emit_light()
 void Star::kill_light()
 {
   // Should not be static... as a result changing luminosity not supported.
-  // double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
-  // for (int i = 0; i < num_photons; i++) {
-  //   std::cout << i <<"\n";
-  //   photons.erase(photons.begin());
-  // }
-  std::vector<Photon> blank;
-  photons = blank;
+  double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
+  std::vector<decltype(photons)::value_type>(photons.begin()+num_photons, photons.end()).swap(photons);
+
 }
