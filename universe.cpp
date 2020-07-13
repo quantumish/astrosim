@@ -38,45 +38,43 @@ void calculate_gravity(T1* source, T2* target, Force<T1, T2>* force)
 void Universe::add_matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
 {
   matter.emplace_back(m,r,x,v,a);
-  Eigen::Vector3d blank = {0,0,0};
   for (int i = 0; i < matter.size()-1; i++) {
-    Force<Matter, Matter> grav1 = {&matter[matter.size()-1], &matter[i], blank};
+    Force<Matter, Matter> grav1 (&matter[matter.size()-1], &matter[i], {0,0,0});
     forces1.push_back(grav1);
     calculate_gravity <Matter, Matter> (&matter[matter.size()-1], &matter[i], &forces1[forces1.size()-1]);
-    Force<Matter, Matter> grav2 = {&matter[i], &matter[matter.size()-1], blank};
+    Force<Matter, Matter> grav2 (&matter[i], &matter[matter.size()-1], {0,0,0});
     forces1.push_back(grav2);
     calculate_gravity <Matter, Matter>(&matter[i], &matter[matter.size()-1], &forces1[forces1.size()-1]);
   }
-  // for (int i = 0; i < stars.size()-1; i++) {
-  //   Force<Matter, Star> grav1 = {&matter[matter.size()-1], &stars[i], blank};
-  //   forces2.push_back(grav1);
-  //   calculate_gravity<Matter, Star> (&matter[matter.size()-1], &stars[i], &forces2[forces2.size()-1]);
-  //   Force<Star, Matter> grav2 (&stars[i], &matter[matter.size()-1], blank);
-  //   forces3.push_back(grav2);
-  //   calculate_gravity<Star, Matter> (&stars[i], &matter[matter.size()-1], &forces3[forces3.size()-1]);
-  // }
+  for (int i = 0; i < stars.size(); i++) {
+    Force<Matter, Star> grav1 (&matter[matter.size()-1], &stars[i], {0,0,0});
+    forces2.push_back(grav1);
+    calculate_gravity<Matter, Star> (&matter[matter.size()-1], &stars[i], &forces2[forces2.size()-1]);
+    Force<Star, Matter> grav2 (&stars[i], &matter[matter.size()-1], {0,0,0});
+    forces3.push_back(grav2);
+    calculate_gravity<Star, Matter> (&stars[i], &matter[matter.size()-1], &forces3[forces3.size()-1]);
+  }
 }
 
 void Universe::add_star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
 {
   stars.emplace_back(m,r,x,v,a,L);
-  Eigen::Vector3d blank = {0,0,0};
-  // for (int i = 0; i < matter.size()-1; i++) {
-  //   Force<Star, Matter> grav1 = {&stars[stars.size()-1], &matter[i], blank};
-  //   forces3.push_back(grav1);
-  //   calculate_gravity<Star, Matter> (&stars[stars.size()-1], &matter[i], &forces3[forces3.size()-1]);
-  //   Force<Matter, Star> grav2 = {&matter[i], &stars[stars.size()-1], blank};
-  //   forces2.push_back(grav2);
-  //   calculate_gravity<Matter, Star> (&matter[i], &stars[stars.size()-1], &forces2[forces2.size()-1]);
-  // }
-  // for (int i = 0; i < stars.size()-1; i++) {
-  //   Force<Star, Star> grav1 = {&stars[stars.size()-1], &stars[i], blank};
-  //   forces4.push_back(grav1);
-  //   calculate_gravity<Star, Star> (&stars[stars.size()-1], &stars[i], &forces4[forces4.size()-1]);
-  //   Force<Star, Star> grav2 = {&stars[i], &stars[stars.size()-1], blank};
-  //   forces4.push_back(grav2);
-  //   calculate_gravity<Star, Star> (&stars[i], &stars[stars.size()-1], &forces4[forces4.size()-1]);
-  // }
+  for (int i = 0; i < matter.size(); i++) {
+    Force<Star, Matter> grav1 (&stars[stars.size()-1], &matter[i], {0,0,0});
+    forces3.push_back(grav1);
+    calculate_gravity<Star, Matter> (&stars[stars.size()-1], &matter[i], &forces3[forces3.size()-1]);
+    Force<Matter, Star> grav2 (&matter[i], &stars[stars.size()-1], {0,0,0});
+    forces2.push_back(grav2);
+    calculate_gravity<Matter, Star> (&matter[i], &stars[stars.size()-1], &forces2[forces2.size()-1]);
+  }
+  for (int i = 0; i < stars.size()-1; i++) {
+    Force<Star, Star> grav1 (&stars[stars.size()-1], &stars[i], {0,0,0});
+    forces4.push_back(grav1);
+    calculate_gravity<Star, Star> (&stars[stars.size()-1], &stars[i], &forces4[forces4.size()-1]);
+    Force<Star, Star> grav2 (&stars[i], &stars[stars.size()-1],{0,0,0});
+    forces4.push_back(grav2);
+    calculate_gravity<Star, Star> (&stars[i], &stars[stars.size()-1], &forces4[forces4.size()-1]);
+  }
 }
 
 void Universe::add_photometer(double r, Eigen::Vector3d x)
@@ -176,20 +174,16 @@ void Universe::advance()
     stars[i].emit_light();
   }
   ticks++;
+  //std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\nNet Force:\n" << matter[0].net_force.source << " " << matter[0].net_force.components.transpose()<< "\n\n";
 }
 
 int main()
 {
   Universe scene{};
-  //  scene.add_star(7.34*pow(10,22), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, pow(10,26));
-  scene.add_matter(7.34*pow(10,20), pow(10,6), {0,10,0}, {0,0,0}, {0,0,0});
-  scene.add_photometer(100, {0,100,0});
-
+  scene.add_star(7.34*pow(10,30), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
+  scene.add_matter(7.34*pow(10,20), pow(10,6), {10,0,0}, {0,0,0}, {0,0,0});
   for (int i = 0; i < 5; i++) {
     scene.advance();
-  }
-  for (int i = 0; i < scene.photometers[0].recorded.size(); i++) {
-    //    std::cout << scene.photometers[0].recorded[i] << "  " << scene.ticks <<"\n";
   }
 }
 
@@ -230,7 +224,6 @@ PYBIND11_MODULE(astrosim, m) {
     .def_readonly("ticks", &Universe::ticks)
     .def_readonly("matter", &Universe::matter)
     .def_readonly("stars", &Universe::stars)
-    .def_readonly("forces", &Universe::forces)
     .def_readonly("photometers", &Universe::photometers);
 }
 #endif
