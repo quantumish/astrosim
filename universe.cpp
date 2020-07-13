@@ -222,7 +222,11 @@ PYBIND11_MODULE(astrosim, m) {
     .def("advance", &Universe::advance)
     .def_readonly("ticks", &Universe::ticks)
     .def_readonly("matter", &Universe::matter)
-    .def_readonly("stars", &Universe::stars)
+    .def_readonly("forces1", &Universe::forces1)
+    .def_readonly("forces2", &Universe::forces2)
+    .def_readonly("forces3", &Universe::forces3)
+    .def_readonly("forces4", &Universe::forces4)
+.def_readonly("stars", &Universe::stars)
     .def_readonly("photometers", &Universe::photometers);
 }
 #endif

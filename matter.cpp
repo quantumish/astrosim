@@ -26,8 +26,9 @@ namespace py = pybind11;
 struct ValueError : public std::exception
 {
   const char* error_message;
-  ValueError(const char* msg) {
-    error_message = msg;
+  ValueError(const char* msg)
+    :error_message{msg}
+  {
   }
   const char* what() const throw () {
     return error_message;
@@ -110,7 +111,7 @@ public:
 Star::Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
   : Matter(m, r, x, v, a), luminosity{L}
 {
-  if (luminosity < 0) throw ValueError("Luminosity of star is negative (star.luminsoriy < 0).");
+  if (luminosity < 0) throw ValueError("Luminosity of star is negative (Star.luminosity < 0).");
 }
 
 void Star::emit_light()
