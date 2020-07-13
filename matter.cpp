@@ -33,28 +33,20 @@ public:
   T1* source;
   T2* target;
   Force();
-  Force(T1* src, T2* end, std::array<double, 3> parts);
+  Force(T1* src, T2* end, Eigen::Vector3d parts);
 };
 
 template<class T1, class T2>
 Force<T1,T2>::Force()
+  :components{0,0,0}, target{nullptr}, source{nullptr}
 {
-  for (int i = 0; i < 3; i++) {
-    components[i] = 0;
-  }
-  target = nullptr;
-  source = nullptr;
 }
 
 template<class T1, class T2>
-Force<T1,T2>::Force(T1* src, T2* end, std::array<double, 3> parts)
+Force<T1,T2>::Force(T1* src, T2* end, Eigen::Vector3d parts)
+  :components{parts}, target{end}, source{src}
 {
-  target = end;
-  source = src;
-  for (int i = 0; i < 3; i++) {
-    components[i] = parts[i];
-  }
-};
+}
 
 class Matter
 {
@@ -66,26 +58,12 @@ public:
   Eigen::Vector3d velocity;
   Eigen::Vector3d acceleration;
   Force<Matter, Matter> net_force;
-  Matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a);
+  Matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a);
 };
 
-Matter::Matter(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a)
+Matter::Matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
+  :radius{r}, mass{m}, net_force{this, NULL, {0,0,0}}, position{x}, velocity{v}, acceleration{a}
 {
-  radius = r;
-  mass = m;
-  for (int i = 0; i < 3; i++) {
-    position[i] = x[i];
-  }
-  for (int i = 0; i < 3; i++) {
-    velocity[i] = v[i];
-  }
-  for (int i = 0; i < 3; i++) {
-    acceleration[i] = a[i];
-  }
-  Eigen::Vector3d blank = {0,0,0};
-  net_force.target = this;
-  net_force.source = NULL;
-  net_force.components = blank;
 }
 
 class Photon
@@ -97,9 +75,8 @@ public:
 };
 
 Photon::Photon(Eigen::Vector3d x, Eigen::Vector3d d)
+  :position{x}, direction{d}
 {
-  position = x;
-  direction = d;
 }
 
 class Star : public Matter
@@ -108,31 +85,27 @@ public:
   double luminosity;
   std::vector<Photon> photons; // TODO: Rethink star managing its photons
   
-  Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L);
+  Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L);
   void emit_light();
   void kill_light();
 };
 
-Star::Star(double m, double r, std::array<double, 3> x, std::array<double, 3> v, std::array<double, 3> a, double L) : Matter(m, r, x, v, a)
+Star::Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
+  : Matter(m, r, x, v, a), luminosity{L}
 {
-  luminosity = L;
 }
 
 void Star::emit_light()
 {
   double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
-  //  std::cout << "NUM: " << num_photons << " = ("<< luminosity << " / " << PLANCK_CONST << ") * " << LIGHT_FRAC <<"\n";
   // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
   for (int i = 0; (double) i < num_photons; i++) {
     Eigen::Vector3d point;
     point[1] = 1 - (i / (float)(num_photons - 1)) * 2;
     radius = sqrt(1 - point[1] * point[1]);
-      
     double theta = PHI * i;
-      
     point[0] = cos(theta) * radius;
     point[2] = sin(theta) * radius;
-      
     photons.emplace_back(position, point);
   }
 }
