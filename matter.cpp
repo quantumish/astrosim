@@ -134,5 +134,4 @@ void Star::kill_light()
   // Should not be static... as a result changing luminosity not supported.
   double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
   std::vector<decltype(photons)::value_type>(photons.begin()+num_photons, photons.end()).swap(photons);
-
 }

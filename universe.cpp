@@ -173,15 +173,16 @@ void Universe::advance()
     stars[i].emit_light();
   }
   ticks++;
-  //std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\nNet Force:\n" << matter[0].net_force.source << " " << matter[0].net_force.components.transpose()<< "\n\n";
+  if (matter[0].acceleration[0] > pow(10,5)) exit(1);
+  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\nNet Force:\n" << matter[0].net_force.source << " " << matter[0].net_force.components.transpose()<< "\n\n";
 }
 
 int main()
 {
   Universe scene{};
-  scene.add_star(7.34*pow(10,30), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
-  scene.add_matter(7.34*pow(10,20), pow(10,6), {10,0,0}, {0,0,0}, {0,0,0});
-  for (int i = 0; i < 5; i++) {
+  scene.add_star(7.34*pow(10,21), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
+  scene.add_matter(7.34*pow(10,20), pow(10,6), {pow(10,12),0,0}, {2000,0,0}, {0,0,0});
+  for (int i = 0; i < 50000; i++) {
     scene.advance();
   }
 }
@@ -189,7 +190,7 @@ int main()
 #ifdef PYTHON
 PYBIND11_MODULE(astrosim, m) {
   m.doc() = "Simulate exoplanets with C++.";
-
+  
   py::class_<Matter>(m, "Matter")
     .def(py::init<double, double, Eigen::Vector3d, Eigen::Vector3d, Eigen::Vector3d>())
     .def_readonly("mass", &Matter::mass)
