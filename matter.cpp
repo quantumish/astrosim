@@ -23,18 +23,6 @@ namespace py = pybind11;
 #define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
 #define LIGHT_EXPIRE 3// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
 
-struct ValueError : public std::exception
-{
-  const char* error_message;
-  ValueError(const char* msg)
-    :error_message{msg}
-  {
-  }
-  const char* what() const throw () {
-    return error_message;
-  }
-};
-
 class Matter;
 
 struct GenericForce
@@ -80,8 +68,8 @@ public:
 Matter::Matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
   :radius{r}, mass{m}, net_force{this, NULL, {0,0,0}}, position{x}, velocity{v}, acceleration{a}
 {
-  if (radius <= 0) throw ValueError("Radius of matter is not positive (Matter.radius <= 0).");
-  if (mass < 0) throw ValueError("Mass of matter is negative (Matter.mass < 0).");
+  assert (radius <= 0);
+  assert (mass < 0);
 }
 
 class Photon
@@ -111,7 +99,7 @@ public:
 Star::Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
   : Matter(m, r, x, v, a), luminosity{L}
 {
-  if (luminosity < 0) throw ValueError("Luminosity of star is negative (Star.luminosity < 0).");
+  assert (luminosity < 0);
 }
 
 void Star::emit_light()

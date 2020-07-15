@@ -6,7 +6,7 @@ import math
 
 scene = astrosim.Universe()
 scene.add_star(5.9*(10**30), 696 * 10**6, [0,0,0], [0,0,0], [0,0,0], 10**0)
-scene.add_matter(5.9*(10**26), 6 * 10**6, [0,10**12,10**12], [0,-1000000000,0], [0,0,0])
+scene.add_matter(10, 6 * 10**6, [0,-10**4, -10**5], [0,-1000000,-1000000], [0,0,0])
 scene.add_photometer(10**2, [0,10000000,0])
 
 # for i in range(10):
@@ -23,7 +23,7 @@ accel = []
 x1,x2,x3=[],[],[]
 y1,y2,y3=[],[],[]
 z1,z2,z3=[],[],[]
-for j in range(30000000):
+for j in range(300):
    print(j)
    x1.append(scene.matter[0].position[0])
    y1.append(scene.matter[0].position[1])
@@ -45,7 +45,7 @@ fixedz1, fixedz2 = [],[]
 
 i = 0
 while (i < len(x1)):
-   if (i % 10000 == 0):
+   if (i % 10 == 0):
       fixedx1.append(x1[i])
       fixedx2.append(x2[i])
       fixedy1.append(y1[i])
