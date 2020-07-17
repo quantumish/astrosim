@@ -92,6 +92,7 @@ void Universe::update_matter(Matter* obj)
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
+  std::cout << obj->net_force.components << " " << obj->mass << "\n";
 }
 
 void Universe::check_ray(Photon photon)
@@ -168,29 +169,42 @@ void Universe::advance()
     forces4[i].target->net_force.components += forces4[i].components;
     calculate_gravity<Star, Star> (forces4[i].source, forces4[i].target, &forces4[i]);
   }
-  for (int i = 0; i < stars.size(); i++) {
-    for (int j = 0; j < stars[i].photons.size(); j++) {
-      check_ray(stars[i].photons[j]);
-      stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
-    }
-    if ((ticks+1) % LIGHT_EXPIRE == 0) {
-      stars[i].kill_light();
-    }
-    stars[i].emit_light();
-  }
+  // for (int i = 0; i < stars.size(); i++) {
+  //   for (int j = 0; j < stars[i].photons.size(); j++) {
+  //     check_ray(stars[i].photons[j]);
+  //     stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
+  //   }
+  //   if ((ticks+1) % LIGHT_EXPIRE == 0) {
+  //     stars[i].kill_light();
+  //   }
+  //   stars[i].emit_light();
+  // }
   ticks++;
-  if (matter[0].acceleration[0] > pow(10,5)) exit(1);
-  std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\nNet Force:\n" << matter[0].net_force.source << " " << matter[0].net_force.components.transpose()<< "\n\n";
+}
+
+Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
+{
+    std::array<int, 2> fixed_coords;
+    fixed_coords[0] = round(coordinates[0]);
+    fixed_coords[1] = round(coordinates[1]);
+    double pixelLength = pow(10, 2);
+    fixed_coords[0] /= PIXEL;
+    fixed_coords[1] /= PIXEL;
+    return Eigen::Vector2d {fixed_coords[0], window->getSize().y-fixed_coords[1]};
 }
 
 void Universe::draw()
 {
   for (Matter i : matter) {
     sf::CircleShape shape(i.radius / PIXEL);
+    Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
+    shape.setPosition(fixedpos[0], fixedpos[1]);
     window->draw(shape);
   }
   for (Star i : stars) {
     sf::CircleShape shape(i.radius / PIXEL);
+    Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
+    shape.setPosition(fixedpos[0], fixedpos[1]);
     window->draw(shape);
   }
 }
@@ -200,19 +214,22 @@ int main()
   sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
   sf::RenderWindow * windowptr = &window;
   Universe scene(windowptr);
-  scene.add_star(7.34*pow(10,21), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
-  scene.add_matter(7.34*pow(10,20), 6000, {pow(10,12),0,0}, {2000,0,0}, {0,0,0});
+  scene.add_star(7.35*pow(10,20), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, 0);
+  scene.add_matter(7.34*pow(10,20), 696.34*pow(10,1), {2000000,1000000,0}, {0,30000,0}, {0,0,0});
+  //  scene.add_matter(7.34*pow(10,20), 696.34*pow(10,1), {1000,1000,0}, {0,0,0}, {0,0,0});
   while (window.isOpen()) {
     sf::Event event;
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) window.close();
-        window.clear();
-        scene.draw();
-        scene.advance();
-        window.display();
     }
-  return EXIT_SUCCESS;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+      window.clear();
+      scene.draw();
+      scene.advance();
+    }
+    window.display();
   }
+  return EXIT_SUCCESS;
 }
 
 #ifdef PYTHON
