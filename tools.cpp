@@ -16,5 +16,5 @@ public:
 Photometer::Photometer(double r, Eigen::Vector3d x)
   :radius{r}, position{x}
 {
-    if (radius <= 0) throw ValueError("Radius of photometer is not positive (Photometer.radius <= 0).");
+  assert (radius > 0);
 }

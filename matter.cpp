@@ -68,8 +68,8 @@ public:
 Matter::Matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
   :radius{r}, mass{m}, net_force{this, NULL, {0,0,0}}, position{x}, velocity{v}, acceleration{a}
 {
-  assert (radius <= 0);
-  assert (mass < 0);
+  assert (radius > 0);
+  assert (mass >= 0);
 }
 
 class Photon
@@ -99,7 +99,7 @@ public:
 Star::Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
   : Matter(m, r, x, v, a), luminosity{L}
 {
-  assert (luminosity < 0);
+  assert (luminosity >= 0);
 }
 
 void Star::emit_light()

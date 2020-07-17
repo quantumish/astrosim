@@ -1,9 +1,13 @@
 #include "tools.cpp"
+#include <SFML/Graphics.hpp>
+
+#define PIXEL pow(10,3)
 
 class Universe
 {
 public:
   int ticks = 0; // I don't want to disturb the 'nop'... TODO: check if this is bad practice
+  sf::RenderWindow * window;
   std::vector<Matter> matter;
   std::vector<Star> stars;
   std::vector<Photometer> photometers;
@@ -17,10 +21,12 @@ public:
   void add_photometer(double r, Eigen::Vector3d x);
   void check_ray(Photon photon);
   void advance();
-  Universe();
+  void draw();
+  Universe(sf::RenderWindow * w);
 };
 
-Universe::Universe()
+Universe::Universe(sf::RenderWindow * w)
+  :window(w)
 {
   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
 }
@@ -177,13 +183,35 @@ void Universe::advance()
   std::cout << "Position:\n" << matter[0].position.transpose() << "\nVelocity:\n" << matter[0].velocity.transpose() << "\nAcceleration:\n" << matter[0].acceleration.transpose() << "\nNet Force:\n" << matter[0].net_force.source << " " << matter[0].net_force.components.transpose()<< "\n\n";
 }
 
+void Universe::draw()
+{
+  for (Matter i : matter) {
+    sf::CircleShape shape(i.radius / PIXEL);
+    window->draw(shape);
+  }
+  for (Star i : stars) {
+    sf::CircleShape shape(i.radius / PIXEL);
+    window->draw(shape);
+  }
+}
+
 int main()
 {
-  Universe scene{};
+  sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
+  sf::RenderWindow * windowptr = &window;
+  Universe scene(windowptr);
   scene.add_star(7.34*pow(10,21), 696.34*pow(10,6), {0,0,0}, {0,0,0}, {0,0,0}, 0);
-  scene.add_matter(7.34*pow(10,20), pow(10,6), {pow(10,12),0,0}, {2000,0,0}, {0,0,0});
-  for (int i = 0; i < 50000; i++) {
-    scene.advance();
+  scene.add_matter(7.34*pow(10,20), 6000, {pow(10,12),0,0}, {2000,0,0}, {0,0,0});
+  while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) window.close();
+        window.clear();
+        scene.draw();
+        scene.advance();
+        window.display();
+    }
+  return EXIT_SUCCESS;
   }
 }
 
