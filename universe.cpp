@@ -211,16 +211,16 @@ void Universe::advance()
     forces4[i].target->net_force.components += forces4[i].components;
     calculate_gravity<Star, Star> (forces4[i].source, forces4[i].target, &forces4[i]);
   }
-  for (int i = 0; i < stars.size(); i++) {
-    for (int j = 0; j < stars[i].photons.size(); j++) {
-      check_ray(stars[i].photons[j]);
-      stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
-    }
-    if ((ticks+1) % LIGHT_EXPIRE == 0) {
-      stars[i].kill_light();
-    }
-    stars[i].emit_light();
-  }
+  // for (int i = 0; i < stars.size(); i++) {
+  //   for (int j = 0; j < stars[i].photons.size(); j++) {
+  //     check_ray(stars[i].photons[j]);
+  //     stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
+  //   }
+  //   if ((ticks+1) % LIGHT_EXPIRE == 0) {
+  //     stars[i].kill_light();
+  //   }
+  //   stars[i].emit_light();
+  // }
   ticks++;
 }
 
