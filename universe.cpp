@@ -1,3 +1,23 @@
+#ifdef PYTHON
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/eigen.h>
+namespace py = pybind11;
+#endif
+
+// Mathematical constants
+#define PI 3.14159265
+#define PHI 1.6180339887
+
+// Universal constants
+#define PLANCK_CONST (6.62607015 * pow(10, -34))
+#define GRAV_CONST (6.674 * pow(10,-11))
+#define LIGHTSPEED 299792458
+
+// Constants relevant to the simulation
+#define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_EXPIRE 3// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
+
 #include "tools.cpp"
 #include <SFML/Graphics.hpp>
 
@@ -16,14 +36,22 @@ public:
   std::vector<Force<Star, Matter>> forces3;
   std::vector<Force<Star, Star>> forces4;
   void update_matter(Matter* obj);
+  void update_star(Star* obj);
   void add_matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a);
   void add_star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L);
   void add_photometer(double r, Eigen::Vector3d x);
   void check_ray(Photon photon);
   void advance();
   void draw();
+  Universe();
   Universe(sf::RenderWindow * w);
 };
+
+Universe::Universe()
+{
+  __asm__("nop"); // Now I can claim parts of this were written in assembly :P
+}
+
 
 Universe::Universe(sf::RenderWindow * w)
   :window(w)
@@ -92,7 +120,15 @@ void Universe::update_matter(Matter* obj)
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
-  std::cout << obj->net_force.components << " " << obj->mass << "\n";
+  std::cout << obj->net_force.components / obj->mass << "\n\n" << obj->radius << "\n\n\n\n";
+}
+
+void Universe::update_star(Star* obj)
+{
+  obj->position += obj->velocity;
+  obj->velocity += obj->acceleration;
+  obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
+  std::cout << obj->net_force.components / obj->mass << "\n\n" << obj->radius << "\n\n\n\n";
 }
 
 void Universe::check_ray(Photon photon)
@@ -152,7 +188,14 @@ void Universe::advance()
   for (int i = 0; i < photometers.size(); i++) {
     photometers[i].recorded.push_back(0);
   }
-  for (int i = 0; i < matter.size(); i++) update_matter(&matter[i]); // Update all Matter objects.
+  for (int i = 0; i < matter.size(); i++) {
+    update_matter(&matter[i]); // Update all Matter objects.
+    matter[i].net_force.components = {0,0,0};
+  }
+  for (int i = 0; i < stars.size(); i++) {
+    update_star(&stars[i]); // Update all Matter objects.
+    stars[i].net_force.components = {0,0,0};
+  }
   for (int i = 0; i < forces1.size(); i++) {
     forces1[i].target->net_force.components += forces1[i].components;
     calculate_gravity<Matter, Matter> (forces1[i].source, forces1[i].target, &forces1[i]);
@@ -214,8 +257,8 @@ int main()
   sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
   sf::RenderWindow * windowptr = &window;
   Universe scene(windowptr);
-  scene.add_star(7.35*pow(10,20), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, 0);
-  scene.add_matter(7.34*pow(10,20), 696.34*pow(10,1), {2000000,1000000,0}, {0,30000,0}, {0,0,0});
+  scene.add_star(pow(10,25), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, 0);
+  scene.add_matter(pow(10,24), 696.34*pow(10,1), {1000000,2000000,0}, {0,0,0}, {0,0,0});
   //  scene.add_matter(7.34*pow(10,20), 696.34*pow(10,1), {1000,1000,0}, {0,0,0}, {0,0,0});
   while (window.isOpen()) {
     sf::Event event;

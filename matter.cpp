@@ -3,26 +3,6 @@
 #include <iostream>
 #include <cmath>
 
-#include <Eigen/Dense>
-#ifdef PYTHON
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-#include <pybind11/eigen.h>
-namespace py = pybind11;
-#endif
-// Mathematical constants
-#define PI 3.14159265
-#define PHI 1.6180339887
-
-// Universal constants
-#define PLANCK_CONST (6.62607015 * pow(10, -34))
-#define GRAV_CONST (6.674 * pow(10,-11))
-#define LIGHTSPEED 299792458
-
-// Constants relevant to the simulation
-#define LIGHT_FRAC (pow(10, -54)) // Fraction of rays emitted from star to be simulated.
-#define LIGHT_EXPIRE 3// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
-
 class Matter;
 
 struct GenericForce
