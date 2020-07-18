@@ -2,8 +2,6 @@
 #include <array>
 #include <Eigen/Dense>
 
-#include "matter.cpp"
-
 class Photometer
 {
 public:
