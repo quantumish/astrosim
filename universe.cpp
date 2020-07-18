@@ -1,3 +1,5 @@
+#include <Eigen/Dense>
+
 #ifdef PYTHON
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -15,7 +17,7 @@ namespace py = pybind11;
 #define LIGHTSPEED 299792458
 
 // Constants relevant to the simulation
-#define LIGHT_FRAC (pow(10, -57)) // Fraction of rays emitted from star to be simulated.
+#define LIGHT_FRAC (pow(10, -60)) // Fraction of rays emitted from star to be simulated.
 #define LIGHT_EXPIRE 2// Number of ticks a photon exists for (prevent processor from struggling on photons millions of miles away from important stuff)
 
 #include "matter.cpp"
@@ -251,6 +253,19 @@ Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
 
 int main()
 {
+  Universe scene{};
+  scene.add_star(pow(10,15), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, pow(10,30));
+  scene.add_matter(pow(10,9), 696.34*pow(10,1), {1000000,1100000,0}, {30,0,0}, {0,0,0});
+  scene.add_photometer(pow(10,5), {1200000,1000000,0});
+  for (int i = 0; i < 2500; i++) {
+    std::cout << i << "\n";
+    scene.advance();
+  }
+  std::cout << "[";
+  for (int i = 0; i < 2500; i++) {
+    std::cout << scene.photometers[0].recorded[i] << ", ";
+  }
+  std::cout << "]\n";
   // sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
   // sf::RenderWindow * windowptr = &window;
   // Universe scene(windowptr);

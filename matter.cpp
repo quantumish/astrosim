@@ -86,7 +86,6 @@ void Star::emit_light()
 {
   double num_photons = round(LIGHT_FRAC * (luminosity / PLANCK_CONST));
   // Very useful: https://stackoverflow.com/questions/9600801/evenly-distributing-n-points-on-a-sphere
-  // std::cout << "Emitting " << num_photons << " photons\n";
   for (int i = 0; (double) i < num_photons; i++) {
     Eigen::Vector3d point;
     point[1] = 1 - (i / (float)(num_photons - 1)) * 2;
