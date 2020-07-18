@@ -27,7 +27,7 @@ class Universe
 {
 public:
   int ticks = 0; // I don't want to disturb the 'nop'... TODO: check if this is bad practice
-  sf::RenderWindow * window;
+  // sf::RenderWindow * window;
   std::vector<Matter> matter;
   std::vector<Star> stars;
   std::vector<Photometer> photometers;
@@ -44,7 +44,7 @@ public:
   void advance();
   void draw();
   Universe();
-  Universe(sf::RenderWindow * w);
+  //  Universe(sf::RenderWindow * w);
 };
 
 Universe::Universe()
@@ -53,11 +53,11 @@ Universe::Universe()
 }
 
 
-Universe::Universe(sf::RenderWindow * w)
-  :window(w)
-{
-  __asm__("nop"); // Now I can claim parts of this were written in assembly :P
-}
+// Universe::Universe(sf::RenderWindow * w)
+//   :window(w)
+// {
+//   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
+// }
 
 template <class T1, class T2>
 void calculate_gravity(T1* source, T2* target, Force<T1, T2>* force)
@@ -120,7 +120,6 @@ void Universe::update_matter(Matter* obj)
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
-  std::cout << obj->net_force.components / obj->mass << "\n\n" << obj->radius << "\n\n\n\n";
 }
 
 void Universe::update_star(Star* obj)
@@ -128,7 +127,6 @@ void Universe::update_star(Star* obj)
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
-  std::cout << obj->net_force.components / obj->mass << "\n\n" << obj->radius << "\n\n\n\n";
 }
 
 void Universe::check_ray(Photon photon)
@@ -164,8 +162,6 @@ void Universe::check_ray(Photon photon)
     double b = 2 * photon.direction.dot(L);
     double c = L.dot(L) - pow(photometers[i].radius,2);
     double discriminant = pow(b,2) - 4*a*c;
-    //    std::out << photon.direction << "\n\n\n\n";
-    //std::cout << discriminant << " = " << b << "^2 - (4 * " << a << " * " << c << ")\n";
     if (discriminant == 0) {
       double t0 = -b/(2*a);
       if (t0 >= 0 && t0 <= 1) {
@@ -236,43 +232,43 @@ Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
     return Eigen::Vector2d {fixed_coords[0], window->getSize().y-fixed_coords[1]};
 }
 
-void Universe::draw()
-{
-  for (Matter i : matter) {
-    sf::CircleShape shape(i.radius / PIXEL);
-    Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
-    shape.setPosition(fixedpos[0], fixedpos[1]);
-    window->draw(shape);
-  }
-  for (Star i : stars) {
-    sf::CircleShape shape(i.radius / PIXEL);
-    Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
-    shape.setPosition(fixedpos[0], fixedpos[1]);
-    window->draw(shape);
-  }
-}
+// void Universe::draw()
+// {
+//   for (Matter i : matter) {
+//     sf::CircleShape shape(i.radius / PIXEL);
+//     Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
+//     shape.setPosition(fixedpos[0], fixedpos[1]);
+//     window->draw(shape);
+//   }
+//   for (Star i : stars) {
+//     sf::CircleShape shape(i.radius / PIXEL);
+//     Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
+//     shape.setPosition(fixedpos[0], fixedpos[1]);
+//     window->draw(shape);
+//   }
+// }
 
 int main()
 {
-  sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
-  sf::RenderWindow * windowptr = &window;
-  Universe scene(windowptr);
-  scene.add_star(pow(10,25), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, 0);
-  scene.add_matter(pow(10,24), 696.34*pow(10,1), {1000000,2000000,0}, {0,0,0}, {0,0,0});
-  //  scene.add_matter(7.34*pow(10,20), 696.34*pow(10,1), {1000,1000,0}, {0,0,0}, {0,0,0});
-  while (window.isOpen()) {
-    sf::Event event;
-    while (window.pollEvent(event)) {
-      if (event.type == sf::Event::Closed) window.close();
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-      window.clear();
-      scene.draw();
-      scene.advance();
-    }
-    window.display();
-  }
-  return EXIT_SUCCESS;
+  // sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
+  // sf::RenderWindow * windowptr = &window;
+  // Universe scene(windowptr);
+  // scene.add_star(pow(10,15), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, 0);
+  // scene.add_matter(pow(10,9), 696.34*pow(10,1), {1000000,1100000,0}, {30,0,0}, {0,0,0});
+  // //  scene.add_matter(7.34*pow(10,20), 696.34*pow(10,1), {1000,1000,0}, {0,0,0}, {0,0,0});
+  // while (window.isOpen()) {
+  //   sf::Event event;
+  //   while (window.pollEvent(event)) {
+  //     if (event.type == sf::Event::Closed) window.close();
+  //   }
+  //   //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+  //     window.clear();
+  //     scene.draw();
+  //     scene.advance();
+  //     //}
+  //   window.display();
+  // }
+  // return EXIT_SUCCESS;
 }
 
 #ifdef PYTHON
