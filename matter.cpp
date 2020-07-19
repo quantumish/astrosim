@@ -96,15 +96,20 @@ void Star::fusion()
   if (core[0] > 0) {
     core[0] -= ((luminosity/(pow(LIGHTSPEED,2)))/0.028698) * 4;
     core[1] += ((luminosity/(pow(LIGHTSPEED,2)))/0.028698);
-    core_temp = 
+    double m_avg = (((1.6605*pow(10,-24))*(core[0]/1.007825)) + ((1.6605*pow(10,-24))*(core[1]/4.002602)))/(core[0]+core[1]);
+    m_avg /= 1000; // kg
+    double r_avg = (((53*pow(10,-9))*core[0]) + ((31*pow(10,-9))*core[0]))/(core[0]+core[1]);
+    core_temp = (GRAV_CONST/BOLTZMANN_CONST) * ((mass * m_avg)/(radius));
     mass = (((core[0]/MOLE) * 1.007825)+((core[1]/MOLE) * 4.002602)) + ((shell[0]/MOLE) * 1.007825);
+    std::cout << core[0] << " "<< core[1] << " "<< mass << " " << core_temp << "\n";
   }
   else if (shell[0] > 0) {
     shell[0] -= ((luminosity/(pow(LIGHTSPEED,2)))/0.028698) * 4;
-    shell[1] += ((luminosity/(pow(LIGHTSPEED,2)))/0.028698);
+    shell[1] += ((luminosity/(pow(LIGHTSPEED,2))/0.028698));
     core_radius -= core_radius * 0.01; // Simulate core contraction.
-    
+    //    core_temp = (GRAV_CONST*((core[1]/MOLE) * 4.002602))/pow(core_radius,2);
     mass = ((core[1]/MOLE) * 4.002602) + ((shell[0]/MOLE) * 1.007825)+((shell[1]/MOLE) * 4.002602);
+    //    std::cout << core[0] << " "<< core[1] << " " << shell[0] << " "<< shell[1] << " " << mass << " " << core_temp << "\n";
   }
 }
 

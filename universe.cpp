@@ -129,7 +129,6 @@ void Universe::update_matter(Matter* obj)
 
 void Universe::update_star(Star* obj)
 {
-  //  if ()
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
@@ -214,16 +213,17 @@ void Universe::advance()
     forces4[i].target->net_force.components += forces4[i].components;
     calculate_gravity<Star, Star> (forces4[i].source, forces4[i].target, &forces4[i]);
   }
-  // for (int i = 0; i < stars.size(); i++) {
-  //   for (int j = 0; j < stars[i].photons.size(); j++) {
-  //     check_ray(stars[i].photons[j]);
-  //     stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
-  //   }
-  //   if ((ticks+1) % LIGHT_EXPIRE == 0) {
-  //     stars[i].kill_light();
-  //   }
-  //   stars[i].emit_light();
-  // }
+  for (int i = 0; i < stars.size(); i++) {
+    stars[i].fusion();
+    // for (int j = 0; j < stars[i].photons.size(); j++) {
+    //   check_ray(stars[i].photons[j]);
+    //   stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
+    // }
+    // if ((ticks+1) % LIGHT_EXPIRE == 0) {
+    //   stars[i].kill_light();
+    // }
+    // stars[i].emit_light();
+  }
   ticks++;
 }
 
@@ -257,18 +257,17 @@ Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
 int main()
 {
   Universe scene{};
-  scene.add_star(pow(10,15), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, pow(10,30));
+  scene.add_star(pow(10,30), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, pow(10,30));
   scene.add_matter(pow(10,9), 696.34*pow(10,1), {1000000,1100000,0}, {30,0,0}, {0,0,0});
   scene.add_photometer(pow(10,5), {1200000,1000000,0});
-  for (int i = 0; i < 2500; i++) {
-    std::cout << i << "\n";
+  for (int i = 0; i < 10; i++) {
     scene.advance();
   }
-  std::cout << "[";
-  for (int i = 0; i < 2500; i++) {
-    std::cout << scene.photometers[0].recorded[i] << ", ";
-  }
-  std::cout << "]\n";
+  // std::cout << "[";
+  // for (int i = 0; i < 2500; i++) {
+  //   std::cout << scene.photometers[0].recorded[i] << ", ";
+  // }
+  // std::cout << "]\n";
   // sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
   // sf::RenderWindow * windowptr = &window;
   // Universe scene(windowptr);
