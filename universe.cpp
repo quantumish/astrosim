@@ -12,6 +12,8 @@ namespace py = pybind11;
 #define PHI 1.6180339887
 
 // Universal constants
+#define WEIN_PROP_CONST (2.897771955 * pow(10, -3))
+#define BOLTZMANN_CONST (1.38064852 * pow(10, -23))
 #define PLANCK_CONST (6.62607015 * pow(10, -34))
 #define GRAV_CONST (6.674 * pow(10,-11))
 #define LIGHTSPEED 299792458
@@ -127,6 +129,7 @@ void Universe::update_matter(Matter* obj)
 
 void Universe::update_star(Star* obj)
 {
+  //  if ()
   obj->position += obj->velocity;
   obj->velocity += obj->acceleration;
   obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a

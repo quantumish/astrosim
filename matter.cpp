@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 
+#define MOLE (6.02214076*pow(10,23))
+
 class Matter;
 
 struct GenericForce
@@ -69,17 +71,41 @@ class Star : public Matter
 {
 public:
   double luminosity;
+  double core[5];
+  double core_radius;
+  double core_temp;
+  double shell[5];
+
   std::vector<Photon> photons; // TODO: Rethink star managing its photons
   
   Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L);
+  void fusion();
   void emit_light();
   void kill_light();
 };
 
 Star::Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
-  : Matter(m, r, x, v, a), luminosity{L}
+  : Matter(m, r, x, v, a), luminosity{L}, core{(0.1*mass/1.007825)*MOLE,0,0,0,0}, shell{(0.9*mass/1.007825)*MOLE,0,0,0,0}, core_radius{0.25*r}
 {
   assert (luminosity >= 0);
+  assert (mass > 0);
+}
+
+void Star::fusion()
+{
+  if (core[0] > 0) {
+    core[0] -= ((luminosity/(pow(LIGHTSPEED,2)))/0.028698) * 4;
+    core[1] += ((luminosity/(pow(LIGHTSPEED,2)))/0.028698);
+    core_temp = 
+    mass = (((core[0]/MOLE) * 1.007825)+((core[1]/MOLE) * 4.002602)) + ((shell[0]/MOLE) * 1.007825);
+  }
+  else if (shell[0] > 0) {
+    shell[0] -= ((luminosity/(pow(LIGHTSPEED,2)))/0.028698) * 4;
+    shell[1] += ((luminosity/(pow(LIGHTSPEED,2)))/0.028698);
+    core_radius -= core_radius * 0.01; // Simulate core contraction.
+    
+    mass = ((core[1]/MOLE) * 4.002602) + ((shell[0]/MOLE) * 1.007825)+((shell[1]/MOLE) * 4.002602);
+  }
 }
 
 void Star::emit_light()
