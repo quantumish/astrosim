@@ -4,22 +4,30 @@ import matplotlib.animation as animation
 import astrosim
 import math
 
+import astrolib
+
 scene = astrosim.Universe()
 scene.add_star(10**15, 696 * 10**6, [1000000,1000000,0], [0,0,0], [0,0,0], 10**30)
 scene.add_matter(10**9, 6 * 10**6, [1000000,1100000, 0], [300,0,0], [0,0,0])
+
+blackbody = astrolib.blackbody_curve(scene.stars[0])
+
+plt.plot(blackbody[0], blackbody[1])
+plt.show()
+
 # scene.add_photometer(10**5, [1200000,1000000,0])
 
-velocity = []
-for i in range(10000):
-   print(i)
-   scene.advance()
-   velocity.append(math.sqrt(scene.stars[0].velocity[0]**2+scene.stars[0].velocity[1]**2+scene.stars[0].velocity[2]**2))
+# velocity = []
+# for i in range(10000):
+#    print(i)
+#    scene.advance()
+#    velocity.append(math.sqrt(scene.stars[0].velocity[0]**2+scene.stars[0].velocity[1]**2+scene.stars[0].velocity[2]**2))
 
-plt.xlabel("Time (in simulation ticks)")
-plt.ylabel("Magnitude of Velocity (in m/s)")
-plt.title("Radial Velocity of Star")
-plt.plot(velocity)
-plt.show()   
+# plt.xlabel("Time (in simulation ticks)")
+# plt.ylabel("Magnitude of Velocity (in m/s)")
+# plt.title("Radial Velocity of Star")
+# plt.plot(velocity)
+# plt.show()   
               
 # fig = plt.figure()
 # ax = plt.axes(projection='3d')
