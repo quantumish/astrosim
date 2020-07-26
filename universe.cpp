@@ -33,7 +33,6 @@ namespace py = pybind11;
 class Universe : public Sim
 {
 public:
-  int ticks = 0; // I don't want to disturb the 'nop'... TODO: check if this is bad practice
   // sf::RenderWindow * window;
   std::vector<Matter> matter;
   std::vector<Star> stars;
@@ -49,11 +48,12 @@ public:
   void add_photometer(double r, Eigen::Vector3d x);
   void check_ray(Photon photon);
   void draw();
-  Universe();
+  void advance();
+  Universe(double dt, ForceMethod fm, TimeMethod tm);
   //  Universe(sf::RenderWindow * w);
 };
 
-Universe::Universe()
+Universe::Universe(double dt, ForceMethod fm, TimeMethod tm) : Sim(dt, fm, tm)
 {
   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
 }
@@ -64,15 +64,6 @@ Universe::Universe()
 // {
 //   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
 // }
-
-template <class T1, class T2>
-void calculate_gravity(T1* source, T2* target, Force<T1, T2>* force)
-{
-  double distance = sqrt(pow(target->position[0] - source->position[0],2)+pow(target->position[1] - source->position[1],2))+pow(target->position[2] - source->position[2],2);
-  double magnitude = GRAV_CONST * ((target->mass * source->mass)/distance); // Calculate the magnitude of the force between the objects
-  Eigen::Vector3d F = (source->position - target->position).normalized() * magnitude; // Express as vector
-  force->components = F;
-}
 
 void Universe::add_matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
 {
@@ -87,20 +78,6 @@ void Universe::add_star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v
 void Universe::add_photometer(double r, Eigen::Vector3d x)
 {
   photometers.emplace_back(r, x);
-}
-
-void Universe::update_matter(Matter* obj)
-{
-  obj->position += obj->velocity;
-  obj->velocity += obj->acceleration;
-  obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
-}
-
-void Universe::update_star(Star* obj)
-{
-  obj->position += obj->velocity;
-  obj->velocity += obj->acceleration;
-  obj->acceleration = obj->net_force.components / obj->mass; // F = ma so F/m = a
 }
 
 void Universe::check_ray(Photon photon)
@@ -139,14 +116,14 @@ void Universe::check_ray(Photon photon)
     if (discriminant == 0) {
       double t0 = -b/(2*a);
       if (t0 >= 0 && t0 <= 1) {
-        photometers[i].recorded[ticks] += 1;
+        photometers[i].recorded[t] += 1;
       }
     }
     else if (discriminant > 0) {
       double t0 = (-b+sqrt(discriminant))/(2*a);
       double t1 = (-b-sqrt(discriminant))/(2*a);
       if (t0 >= 0 && t0 <= 1) {
-        photometers[i].recorded[ticks] += 1;
+        photometers[i].recorded[t] += 1;
       }
     }
   }
@@ -155,14 +132,9 @@ void Universe::check_ray(Photon photon)
 
 void Universe::advance()
 {
+  update();
   for (int i = 0; i < photometers.size(); i++) {
     photometers[i].recorded.push_back(0);
-  }
-  for (int i = 0; i < matter.size(); i++) {
-    update_matter(&matter[i]); // Update all Matter objects.
-  }
-  for (int i = 0; i < stars.size(); i++) {
-    update_star(&stars[i]); // Update all Matter objects.
   }
   for (int i = 0; i < stars.size(); i++) {
     stars[i].fusion();
@@ -175,7 +147,6 @@ void Universe::advance()
     // }
     // stars[i].emit_light();
   }
-  ticks++;
 }
 
 Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
@@ -207,7 +178,7 @@ Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
 
 int main()
 {
-  Universe scene{};
+  Universe scene{1, Direct, Leapfrog};
   scene.add_star(pow(10,30), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, pow(10,30));
   scene.add_matter(pow(10,9), 696.34*pow(10,1), {1000000,1100000,0}, {30,0,0}, {0,0,0});
   scene.add_photometer(pow(10,5), {1200000,1000000,0});
