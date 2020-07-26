@@ -7,6 +7,8 @@
 namespace py = pybind11;
 #endif
 
+#include "../nbody/nbody.hpp"
+
 // Mathematical constants
 #define PI 3.14159265
 #define PHI 1.6180339887
@@ -28,7 +30,7 @@ namespace py = pybind11;
 
 #define PIXEL pow(10,3)
 
-class Universe
+class Universe : public Sim
 {
 public:
   int ticks = 0; // I don't want to disturb the 'nop'... TODO: check if this is bad practice
@@ -46,7 +48,6 @@ public:
   void add_star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L);
   void add_photometer(double r, Eigen::Vector3d x);
   void check_ray(Photon photon);
-  void advance();
   void draw();
   Universe();
   //  Universe(sf::RenderWindow * w);
@@ -76,43 +77,11 @@ void calculate_gravity(T1* source, T2* target, Force<T1, T2>* force)
 void Universe::add_matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
 {
   matter.emplace_back(m,r,x,v,a);
-  for (int i = 0; i < matter.size()-1; i++) {
-    Force<Matter, Matter> grav1 (&matter[matter.size()-1], &matter[i], {0,0,0});
-    forces1.push_back(grav1);
-    calculate_gravity <Matter, Matter> (&matter[matter.size()-1], &matter[i], &forces1[forces1.size()-1]);
-    Force<Matter, Matter> grav2 (&matter[i], &matter[matter.size()-1], {0,0,0});
-    forces1.push_back(grav2);
-    calculate_gravity <Matter, Matter>(&matter[i], &matter[matter.size()-1], &forces1[forces1.size()-1]);
-  }
-  for (int i = 0; i < stars.size(); i++) {
-    Force<Matter, Star> grav1 (&matter[matter.size()-1], &stars[i], {0,0,0});
-    forces2.push_back(grav1);
-    calculate_gravity<Matter, Star> (&matter[matter.size()-1], &stars[i], &forces2[forces2.size()-1]);
-    Force<Star, Matter> grav2 (&stars[i], &matter[matter.size()-1], {0,0,0});
-    forces3.push_back(grav2);
-    calculate_gravity<Star, Matter> (&stars[i], &matter[matter.size()-1], &forces3[forces3.size()-1]);
-  }
 }
 
 void Universe::add_star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a, double L)
 {
   stars.emplace_back(m,r,x,v,a,L);
-  for (int i = 0; i < matter.size(); i++) {
-    Force<Star, Matter> grav1 (&stars[stars.size()-1], &matter[i], {0,0,0});
-    forces3.push_back(grav1);
-    calculate_gravity<Star, Matter> (&stars[stars.size()-1], &matter[i], &forces3[forces3.size()-1]);
-    Force<Matter, Star> grav2 (&matter[i], &stars[stars.size()-1], {0,0,0});
-    forces2.push_back(grav2);
-    calculate_gravity<Matter, Star> (&matter[i], &stars[stars.size()-1], &forces2[forces2.size()-1]);
-  }
-  for (int i = 0; i < stars.size()-1; i++) {
-    Force<Star, Star> grav1 (&stars[stars.size()-1], &stars[i], {0,0,0});
-    forces4.push_back(grav1);
-    calculate_gravity<Star, Star> (&stars[stars.size()-1], &stars[i], &forces4[forces4.size()-1]);
-    Force<Star, Star> grav2 (&stars[i], &stars[stars.size()-1],{0,0,0});
-    forces4.push_back(grav2);
-    calculate_gravity<Star, Star> (&stars[i], &stars[stars.size()-1], &forces4[forces4.size()-1]);
-  }
 }
 
 void Universe::add_photometer(double r, Eigen::Vector3d x)
@@ -191,27 +160,9 @@ void Universe::advance()
   }
   for (int i = 0; i < matter.size(); i++) {
     update_matter(&matter[i]); // Update all Matter objects.
-    matter[i].net_force.components = {0,0,0};
   }
   for (int i = 0; i < stars.size(); i++) {
     update_star(&stars[i]); // Update all Matter objects.
-    stars[i].net_force.components = {0,0,0};
-  }
-  for (int i = 0; i < forces1.size(); i++) {
-    forces1[i].target->net_force.components += forces1[i].components;
-    calculate_gravity<Matter, Matter> (forces1[i].source, forces1[i].target, &forces1[i]);
-  }
-  for (int i = 0; i < forces2.size(); i++) {
-    forces2[i].target->net_force.components += forces2[i].components;
-    calculate_gravity<Matter, Star> (forces2[i].source, forces2[i].target, &forces2[i]);
-  }
-  for (int i = 0; i < forces3.size(); i++) {
-    forces3[i].target->net_force.components += forces3[i].components;
-    calculate_gravity<Star, Matter> (forces3[i].source, forces3[i].target, &forces3[i]);
-  }
-  for (int i = 0; i < forces4.size(); i++) {
-    forces4[i].target->net_force.components += forces4[i].components;
-    calculate_gravity<Star, Star> (forces4[i].source, forces4[i].target, &forces4[i]);
   }
   for (int i = 0; i < stars.size(); i++) {
     stars[i].fusion();
@@ -323,12 +274,7 @@ PYBIND11_MODULE(astrosim, m) {
     .def("add_star", &Universe::add_star, py::arg("m"), py::arg("r"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
     .def("add_photometer", &Universe::add_photometer, py::arg("r"), py::arg("x"))
     .def("advance", &Universe::advance)
-    .def_readonly("ticks", &Universe::ticks)
     .def_readonly("matter", &Universe::matter)
-    .def_readonly("forces1", &Universe::forces1)
-    .def_readonly("forces2", &Universe::forces2)
-    .def_readonly("forces3", &Universe::forces3)
-    .def_readonly("forces4", &Universe::forces4)
 .def_readonly("stars", &Universe::stars)
     .def_readonly("photometers", &Universe::photometers);
 }

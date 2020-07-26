@@ -34,24 +34,17 @@ Force<T1,T2>::Force(T1* src, T2* end, Eigen::Vector3d parts)
 {
 }
 
-class Matter
+class Matter : public Body
 {
 public:
-  double mass;
   double radius;
-  
-  Eigen::Vector3d position;
-  Eigen::Vector3d velocity;
-  Eigen::Vector3d acceleration;
-  Force<Matter, Matter> net_force;
   Matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a);
 };
 
 Matter::Matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
-  :radius{r}, mass{m}, net_force{this, NULL, {0,0,0}}, position{x}, velocity{v}, acceleration{a}
+  :Body(m,x,v,a), radius{r}
 {
   assert (radius > 0);
-  assert (mass >= 0);
 }
 
 class Photon
