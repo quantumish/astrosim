@@ -6,14 +6,11 @@ import math
 
 import astrolib
 
-scene = astrosim.Universe()
+scene = astrosim.Universe(1, astrosim.Direct, astrosim.Euler)
 scene.add_star(10**15, 696 * 10**6, [1000000,1000000,0], [0,0,0], [0,0,0], 10**30)
 scene.add_matter(10**9, 6 * 10**6, [1000000,1100000, 0], [300,0,0], [0,0,0])
 
-blackbody = astrolib.blackbody_curve(scene.stars[0])
-
-plt.plot(blackbody[0], blackbody[1])
-plt.show()
+scene.advance()
 
 # scene.add_photometer(10**5, [1200000,1000000,0])
 

@@ -16,6 +16,9 @@ namespace py = pybind11;
 // Universal constants
 #define WEIN_PROP_CONST (2.897771955 * pow(10, -3))
 #define BOLTZMANN_CONST (1.38064852 * pow(10, -23))
+#define COULOMB_CONST (8.9876 * pow(10, 9))
+#define ELEMENTARY_CHARGE (1.60217653 * pow(10, -19))
+#define AVG_NUCLEON_RADIUS (1.3 * pow(10,-12))
 #define PLANCK_CONST (6.62607015 * pow(10, -34))
 #define GRAV_CONST (6.674 * pow(10,-11))
 #define LIGHTSPEED 299792458
@@ -214,6 +217,19 @@ int main()
 #ifdef PYTHON
 PYBIND11_MODULE(astrosim, m) {
   m.doc() = "Simulate exoplanets with C++.";
+
+  py::enum_<ForceMethod>(m, "ForceMethod")
+    .value("Direct", ForceMethod::Direct)
+    .value("Tree", ForceMethod::Tree)
+    .value("FMM", ForceMethod::FMM)
+    .value("Mesh", ForceMethod::Mesh)
+    .value("P3M", ForceMethod::P3M)
+    .export_values();
+  py::enum_<TimeMethod>(m, "TimeMethod")
+    .value("Euler", TimeMethod::Euler)
+    .value("Leapfrog", TimeMethod::Leapfrog)
+    .value("Hermite", TimeMethod::Hermite)
+    .export_values();
   
   py::class_<Matter>(m, "Matter")
     .def(py::init<double, double, Eigen::Vector3d, Eigen::Vector3d, Eigen::Vector3d>())
@@ -240,7 +256,7 @@ PYBIND11_MODULE(astrosim, m) {
     .def_readonly("recorded", &Photometer::recorded);
   
   py::class_<Universe>(m, "Universe")
-    .def(py::init<>())
+    .def(py::init<double, ForceMethod, TimeMethod>())
     .def("add_matter", &Universe::add_matter, py::arg("m"), py::arg("r"), py::arg("x"), py::arg("v"), py::arg("a"))
     .def("add_star", &Universe::add_star, py::arg("m"), py::arg("r"), py::arg("x"), py::arg("v"), py::arg("a"), py::arg("L"))
     .def("add_photometer", &Universe::add_photometer, py::arg("r"), py::arg("x"))

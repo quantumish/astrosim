@@ -86,13 +86,11 @@ Star::Star(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vect
 
 void Star::fusion()
 {
-  if (core[0] > 0) {
+  std::cout << ((pow(ELEMENTARY_CHARGE, 2)*COULOMB_CONST) * (1/(2*AVG_NUCLEON_RADIUS))) / (3/2 * BOLTZMANN_CONST) << "\n";
+  if (core[0] > 0 && 3/2 * BOLTZMANN_CONST * core_temp >= ((pow(ELEMENTARY_CHARGE, 2)*COULOMB_CONST) * (1/(2*AVG_NUCLEON_RADIUS)))) {
+    std::cout << "Yay, we meet the fusion requirements!\n";
     core[0] -= ((luminosity/(pow(LIGHTSPEED,2)))/0.028698) * 4;
     core[1] += ((luminosity/(pow(LIGHTSPEED,2)))/0.028698);
-    double m_avg = (((1.6605*pow(10,-24))*(core[0]/1.007825)) + ((1.6605*pow(10,-24))*(core[1]/4.002602)))/(core[0]+core[1]);
-    m_avg /= 1000; // kg
-    double r_avg = (((53*pow(10,-9))*core[0]) + ((31*pow(10,-9))*core[0]))/(core[0]+core[1]);
-    core_temp = (GRAV_CONST/BOLTZMANN_CONST) * ((mass * m_avg)/(radius));
     mass = (((core[0]/MOLE) * 1.007825)+((core[1]/MOLE) * 4.002602)) + ((shell[0]/MOLE) * 1.007825);
     std::cout << core[0] << " "<< core[1] << " "<< mass << " " << core_temp << "\n";
   }
