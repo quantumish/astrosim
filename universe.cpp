@@ -31,8 +31,6 @@ namespace py = pybind11;
 #include "tools.cpp"
 #include <SFML/Graphics.hpp>
 
-#define PIXEL pow(10,3)
-
 class Universe : public Sim
 {
 public:
@@ -152,42 +150,56 @@ void Universe::advance()
   }
 }
 
-Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window)
+Eigen::Vector2d sfml_pos(Eigen::Vector3d coordinates, sf::RenderWindow* window, int pixel)
 {
     std::array<int, 2> fixed_coords;
     fixed_coords[0] = round(coordinates[0]);
     fixed_coords[1] = round(coordinates[1]);
     double pixelLength = pow(10, 2);
-    fixed_coords[0] /= PIXEL;
-    fixed_coords[1] /= PIXEL;
+    fixed_coords[0] /= pixel;
+    fixed_coords[1] /= pixel;
     return Eigen::Vector2d {fixed_coords[0], window->getSize().y-fixed_coords[1]};
 }
 
-// void Universe::draw()
-// {
-//   for (Matter i : matter) {
-//     sf::CircleShape shape(i.radius / PIXEL);
-//     Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
-//     shape.setPosition(fixedpos[0], fixedpos[1]);
-//     window->draw(shape);
-//   }
-//   for (Star i : stars) {
-//     sf::CircleShape shape(i.radius / PIXEL);
-//     Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), window);
-//     shape.setPosition(fixedpos[0], fixedpos[1]);
-//     window->draw(shape);
-//   }
-// }
+int sfml_visualize(Universe scene, float pixel)
+{
+  sf::RenderWindow window(sf::VideoMode(2560, 1600), "AstroSim");
+  sf::RenderWindow * windowptr = &window;
+  while (window.isOpen()) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+      if (event.type == sf::Event::Closed) window.close();
+    }
+    window.clear(sf::Color::White);
+    scene.advance();
+    for (Matter i : scene.matter) {
+      sf::CircleShape shape(i.radius / pixel);
+      Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), &window, pixel);
+      std::cout << fixedpos[0] << "\n";
+      shape.setPosition(fixedpos[0], fixedpos[1]);
+      shape.setFillColor(sf::Color::Blue);
+      window.draw(shape);
+    }
+    for (Star i : scene.stars) {
+      sf::CircleShape shape(i.radius / pixel);
+      Eigen::Vector2d fixedpos = sfml_pos((i.position.array()-i.radius).matrix(), &window, pixel);
+      std::cout << fixedpos[0] << "\n";
+      shape.setPosition(fixedpos[0], fixedpos[1]);
+      shape.setFillColor(sf::Color::Yellow);
+      window.draw(shape);
+    }
+    //std::cout << scene.stars[10020202].radius;
+    window.display();
+  }
+  return EXIT_SUCCESS;
+}
 
 int main()
 {
-  Universe scene{1, Direct, Leapfrog};
-  scene.add_star(pow(10,30), 696.34*pow(10,1), {1000000,1000000,0}, {0,0,0}, {0,0,0}, pow(10,30));
+  Universe scene{1000, Direct, Leapfrog};
+  scene.add_star(pow(10,15), 696.34*pow(10,6), {1000000,1000000,0}, {0,0,0}, {0,0,0}, pow(10,30));
   scene.add_matter(pow(10,9), 696.34*pow(10,1), {1000000,1100000,0}, {30,0,0}, {0,0,0});
-  scene.add_photometer(pow(10,5), {1200000,1000000,0});
-  for (int i = 0; i < 10; i++) {
-    scene.advance();
-  }
+  sfml_visualize(scene, 2000);
   // std::cout << "[";
   // for (int i = 0; i < 2500; i++) {
   //   std::cout << scene.photometers[0].recorded[i] << ", ";
@@ -218,6 +230,7 @@ int main()
 PYBIND11_MODULE(astrosim, m) {
   m.doc() = "Simulate exoplanets with C++.";
 
+  m.def("sfml_visualize", sfml_visualize, py::arg("sim"), py::arg("pixel"));
   py::enum_<ForceMethod>(m, "ForceMethod")
     .value("Direct", ForceMethod::Direct)
     .value("Tree", ForceMethod::Tree)

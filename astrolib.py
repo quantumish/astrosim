@@ -1,5 +1,6 @@
 import astrosim
 import matplotlib.pyplot as plt
+import pygame
 import math
 
 def blackbody_curve(star, start=1e-6, end=1, step=0.01):

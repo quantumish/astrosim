@@ -7,10 +7,12 @@ import math
 import astrolib
 
 scene = astrosim.Universe(1, astrosim.Direct, astrosim.Euler)
-scene.add_star(10**15, 696 * 10**6, [1000000,1000000,0], [0,0,0], [0,0,0], 10**30)
-scene.add_matter(10**9, 6 * 10**6, [1000000,1100000, 0], [300,0,0], [0,0,0])
+scene.add_star(10**15, 696 * 10**6, [0,0,0], [0,0,0], [0,0,0], 10**30)
+scene.add_matter(10**9, 6 * 10**6, [0,100000, 0], [1,0,0], [0,0,0])
 
-scene.advance()
+#astrolib.sfml_visualize(scene, 1000)
+
+#scene.advance()
 
 # scene.add_photometer(10**5, [1200000,1000000,0])
 
