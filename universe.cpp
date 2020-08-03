@@ -59,13 +59,6 @@ Universe::Universe(double dt, ForceMethod fm, TimeMethod tm) : Sim(dt, fm, tm)
   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
 }
 
-
-// Universe::Universe(sf::RenderWindow * w)
-//   :window(w)
-// {
-//   __asm__("nop"); // Now I can claim parts of this were written in assembly :P
-// }
-
 void Universe::add_matter(double m, double r, Eigen::Vector3d x, Eigen::Vector3d v, Eigen::Vector3d a)
 {
   matter.emplace_back(m,r,x,v,a);
@@ -139,6 +132,7 @@ void Universe::advance()
   }
   for (int i = 0; i < stars.size(); i++) {
     stars[i].fusion();
+    stars[i].radius = sqrt(-GRAV_CONST * stars[i].mass * stars[i].pressure);
     // for (int j = 0; j < stars[i].photons.size(); j++) {
     //   check_ray(stars[i].photons[j]);
     //   stars[i].photons[j].position += stars[i].photons[j].direction * LIGHTSPEED;
